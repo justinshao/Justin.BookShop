@@ -1,0 +1,219 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/jquery.tmpl.js"></script>
+<script src="~/Scripts/ckeditor/ckeditor.js"></script>
+<style type="text/css">
+.detailForm td
+{
+    line-height:22px;
+    font-size:13px;
+    font-family:Verdana;
+}
+</style> 
+<!--toolbar-->
+<div class="mini-toolbar">
+    <a class="mini-button" iconCls="icon-add" onclick="add">新增</a>
+    <a class="mini-button" iconCls="icon-edit" onclick="edit">编辑</a>
+    <a class="mini-button" iconCls="icon-remove" onclick="remove">删除</a>
+    <span class="separator"></span>
+    <a class="mini-button" iconCls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+</div>
+<!--authors-->
+<div id="authors" class="mini-datagrid" width="100%" style=" height: 350px;"
+    url="@Url.Action("List", "Author")" allowresize="true" enableHotTrack="false"
+    onshowrowdetail="onShowRowDetail" showFilterRow="true">
+    <div property="columns">
+        <div type="indexcolumn" width="5"></div>
+        <div type="expandcolumn" width="5"></div>
+        <div field="Name" width="120" allowSort="true">作者名称
+            <input property="filter" class="mini-textbox" onvaluechanged="onNameFilterChanged" style="width:100%;" />
+        </div>
+    </div>
+</div>
+<!--window-->
+<div id="window" class="mini-window" width="800" height="400" title="作者编辑"
+    showMaxButton="true" showCollapseButton="true" showshadow="true" iconCls="icon-edit"
+    showtoolbar="true" showfooter="true" allowresize="true" allowdrag="true">
+    <div property="footer" class="toolbar-footer">
+        <a class="mini-button" iconCls="icon-ok" onclick="ok">确定</a>
+        <a class="mini-button" iconCls="icon-cancel" onclick="cancel">取消</a>
+    </div>
+    <!--editform-->
+    <div id="editForm" width="100%" height="100%">
+        <input class="mini-hidden" name="ID" />
+        <input class="mini-hidden" name="_state" />
+        <table style="width: 100%; height: 100%; border-collapse: collapse" border="1">
+            <tr>
+                <td style="text-align: right; width: 10%">作者名称</td>
+                <td><input name="Name" class="mini-textbox" required="true" emptytext="必填" width="100%" /></td>
+            </tr>
+            <tr>
+                <td>简介：</td>
+                <td><textarea name="Introduction" class="ckeditor" cols="20" rows="4"></textarea></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!--template-->
+<script id="formTemplate" type="text/x-jquery-tmpl">
+    <table class="detailForm" style="width: 100%;">
+        <tr>
+            <td>作者名称：</td>
+            <td>${Name}</td>
+        </tr>
+        <tr>
+            <td>简介：</td>
+            <td>{{html Introduction}}</td>
+        </tr>
+    </table>
+</script>
+<script type="text/javascript">
+    var grid = null;
+    var editWindow = null;
+    var editForm = null;
+    
+    $(function () {
+        mini.parse();
+
+        grid = mini.get("authors");
+        editWindow = mini.get("window");
+        editForm = new mini.Form("#editForm");
+        CKEDITOR.replace("Introduction");
+
+        grid.load();
+    });
+
+    function onShowRowDetail(e) {
+        var grid = e.sender;
+        var row = e.record;
+
+        var td = grid.getRowDetailCellEl(row);
+        td.innerHTML = "";
+        $("#formTemplate").tmpl(row).appendTo(td);
+    }
+
+    function onNameFilterChanged(e) {
+        var textbox = e.sender;
+        var key = textbox.getValue();
+
+        grid.load({ key: "name-" + key });
+    }
+
+    function ok() {
+        editForm.validate();
+        if (!editForm.isValid())
+            return;
+        var o = editForm.getData();
+        o.Introduction = CKEDITOR.instances.Introduction.getData();
+
+        grid.loading("保存中，请稍后...");
+        $.ajax({
+            url: "/Admin/Author/SaveAuthor",
+            data: JSON.stringify(o),
+            dataType: "json",
+            type: "post",
+            contentType: "application/json;charset=utf-8",
+            success: function (result) {
+                if (result.Success) {
+                    showTip("数据保存成功！", "success");
+                    grid.reload();
+                } else {
+                    e.cancel = true;
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage, "错误消息");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus, "错误消息");
+            }
+        });
+
+        editWindow.hide();
+    }
+
+    function cancel() {
+        grid.reload();
+        editWindow.hide();
+    }
+
+    function add() {
+        var row = {ID: -1, _state: "added"}
+        editRow(row);
+    }
+
+    function edit() {
+        var row = grid.getSelected();
+        row._state = "modified";
+        editRow(row);
+    }
+
+    function editRow(row) {
+        editWindow.show();
+        editForm.clear();
+
+        editForm.loading();
+        $.ajax({
+            url: "/Admin/Author/GetAuthorByID?id=" + row.ID,
+            type: "post",
+            success: function (data) {
+                editForm.unmask();
+                var o = mini.decode(data);
+                if (!o) o = {};
+                o._state = row._state;
+                editForm.setData(o);
+                CKEDITOR.instances.Introduction.setData(o.Introduction);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                editForm.unmask();
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function remove() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定删除？", "确定删除该作者？", function (action) {
+                if (action == "ok") {
+                    grid.loading("删除中，请稍后......");
+                    $.ajax({
+                        url: "/Admin/Author/Remove?id=" + row.ID,
+                        type:"post",
+                        success: function (result) {
+                            if (result.Success) {
+                                showTip("数据保存成功！", "success");
+                                grid.reload();
+                            }
+                            else {
+                                mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage, "错误消息");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            mini.alert("<b>出现错误！</b><br/>" +
+                                "错误信息：" + errorThrown, +
+                                "<br/>状态码：" + textStatus, "错误消息");
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    function refreshData() {
+        grid.reload();
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+</script>

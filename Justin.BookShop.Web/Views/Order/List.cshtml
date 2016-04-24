@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "订单列表";
+    Layout = "~/Views/Shared/UserCenter.cshtml";
+}
+@using Justin.BookShop.Controllers.Client;
+@model IEnumerable<Justin.BookShop.Entities.Order>
+
+<link href="~/Content/themes/orderlist.css" rel="stylesheet" />
+<div class="m m5" id="order02">
+    <div class="mc">
+        <div class="tb-void">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                    <tr>
+                        <th width="286">订单信息</th>
+                        <th width="80">收货人</th>
+                        <th width="110">订单金额</th>
+                        <th width="100">
+                            <select id="submitDate" name="" class="sele">
+                                <option value="0" selected="">全部时间</option>
+                                <option value="1">最近三个月</option>
+                                <option value="2">今年内</option>
+                                <option value="9">2013年</option>
+                                <option value="8">2012年</option>
+                                <option value="3">2011年</option>
+                                <option value="4">2010年</option>
+                                <option value="5">2009年</option>
+                                <option value="6">2008年</option>
+                                <option value="7">2008年以前</option>
+                            </select>
+                        </th>
+                        <th width="100">
+                            <select id="orderState" name="" class="sele">
+                                <option value="4096" selected="">全部状态</option>
+                                <option value="1">等待付款</option>
+                                <option value="32">等待自提</option>
+                                <option value="128">等待收货</option>
+                                <option value="1024">已完成</option>
+                                <option value="-1">已取消</option>
+                            </select>
+                        </th>
+                    </tr>
+                </tbody>
+                <script type="text/javascript" language="javascript">
+                    $("#submitDate").change(function () {
+                        var sDate = $("#submitDate option[@@selected]").val();
+                        window.location = 'list.action?d=' + sDate + '&s=4096&t=';
+                    });
+                    $("#orderState").change(function () {
+                        var oState = $("#orderState option[@@selected]").val();
+                        window.location = 'list.action?d=0&s=' + oState + '&t=';
+                    });
+                    $("#submitDate").val(0);
+                    $("#orderState").val(4096);
+                </script>
+                @foreach (var order in Model.OrderByDescending(o => o.SubmitDate))
+                {
+                    <tbody id="tb-1234666388">
+                        <tr class="tr-th">
+                            <td colspan="6">
+                                <span class="tcol1">订单编号:
+                                    @Html.ActionLink(order.NO, "Detail", "Order", new { orderId = order.ID }, new { target = "_blank", title = order.NO })
+                                </span>
+                            </td>
+                        </tr>
+                        <tr id="track1234666388" class="tr-td">
+                            <td>
+                                <div class="img-list">
+                                    @foreach (var item in order.OrderItems)
+                                    {
+                                        <a href="@Url.Action("Detail", "Book", new {bookId = item.BookID})" target="_blank">
+                                            <img title="@item.Book.MainTitle" src="@(WebConfig.BookImageFileServer + item.Book.Thumbnail)" width="50" height="50"/>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="u-name">@order.Receipt.ReceiptName</div>
+                            </td>
+                            <td>￥@order.OrderPrice</td>
+                            <td>
+                                <span class="ftx-03">@order.SubmitDate.ToString("yyyy-MM-dd")<br/>@order.SubmitDate.ToString("HH:mm:ss")</span>
+                            </td>
+                            <td><span class="ftx-03">@order.State</span></td>
+                        </tr>
+                    </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</div>

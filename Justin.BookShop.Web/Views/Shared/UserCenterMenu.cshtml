@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Justin.BookShop.Entities.Permission>
+@using Justin.BookShop.Entities;
+@{
+    var user = System.Web.HttpContext.Current.Session["user"] as User;
+}
+
+<script src="~/Scripts/category.js"></script>
+<link href="~/Content/themes/category.css" rel="stylesheet" />
+<div class="lanmu-content">
+    <dl class="lanmu-list">
+        <dt>
+            <b>用户中心</b>
+        </dt>
+        @foreach (var m in Model)
+        {
+            <dd><b>@Html.ActionLink(m.Name, m.Action, m.Controller, new { userId = (user == null ? null : (object)user.ID) }, new { title = m.Name })</b></dd>
+        }
+    </dl>
+    <a class="listmore" style="display: none;" href="javascript:;">查看更多 ↓</a>
+</div>

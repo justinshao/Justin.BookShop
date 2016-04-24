@@ -1,0 +1,212 @@
+﻿@{
+    Layout = "~/Views/Shared/NoBannerMain.cshtml";
+}
+@using Justin.BookShop.Controllers.Client;
+@model Justin.BookShop.Entities.Book
+@{
+    var shares = new[]{ 
+        new {Text="新浪微博", Title="分享到新浪微博", Id = "site-sina"},
+        new {Text="QQ", Title="分享到给QQ好友", Id = "site-qq"},
+        new {Text="腾讯微博", Title="分享到腾讯微博", Id = "site-qzone"},
+        new {Text="人人网", Title="分享到人人网", Id = "site-renren"},
+        new {Text="开心网", Title="分享到开心网", Id = "site-kaixing"},
+        new {Text="豆瓣", Title="分享到豆瓣", Id = "site-douban"},
+        new {Text="MSN", Title="分享给MSN好友", Id = "site-msn"},
+        new {Text="邮件", Title="邮件分享给好友", Id = "site-email"}
+    };
+}
+
+<link href="~/Content/themes/bookdetail.css" rel="stylesheet" />
+
+<div id="product-intro">
+    <div id="name">
+        <h1>@Model.MainTitle<br/>
+            <font id="advertiseWord" style="color: #ff0000">
+                @Model.MinorTitle
+            </font>
+        </h1>
+    </div>
+    <div class="clearfix">
+        <ul id="summary">
+            <li id="summary-market">
+                <div class="dt">定　　价：</div>
+                <div class="dd"><del>￥@Model.OfficialPrice</del></div>
+            </li>
+            <li id="summary-price">
+                <div class="dt">京 东 价：</div>
+                <div class="dd">
+                    <strong>￥@Model.SellingPrice</strong>
+                    <span>（@(Math.Round(((decimal)Model.SellingPrice / Model.OfficialPrice), 2, MidpointRounding.AwayFromZero) * 10)折）</span>
+                </div>
+            </li>
+            <li id="summary-grade">
+                <div class="dt">商品评分：</div>
+                <div class="dd">
+                    <div class="star">
+                        <span class="star-white"><span class="star-yellow h5"></span></span>
+                    </div>
+                    <a href="#comment">@Html.ActionLink("已有" + Model.Comments.Count + "评价", "Comments", new { bookId = Model.ID }, new { target = "_blank" })</a>
+                </div>
+            </li>
+            <li id="summary-promotion">
+                <div class="dt">促销信息：</div>
+                <div class="dd">
+                </div>
+            </li>
+            <li id="summary-author">
+                <div class="dt">作　　者：</div>
+                <div class="dd">
+                    @{
+                        int i = 0;
+                        foreach (var a in Model.Authors)
+                        {
+                            if (i >= 1)
+                            {@MvcHtmlString.Create("，")}
+                            @Html.ActionLink(a.Name, "AuthorList", "Book", new { authorId = a.ID }, null)
+                            i++;
+                        }
+                    }著</div>
+            </li>
+            <li id="summary-ph">
+                <div class="dt">出 版 社：</div>
+                <div class="dd">
+                    @{
+                        int j = 0;
+                        foreach (var p in Model.Presses)
+                        {
+                            if (j >= 1)
+                            {@MvcHtmlString.Create("，")}
+                            @Html.ActionLink(p.Name, "PressList", "Book", new { pressId = p.ID }, null)
+                            j++;
+                        }
+                    }
+                </div>
+            </li>
+            <li id="summary-published">
+                <div class="dt">出版时间：</div>
+                <div class="dd">@Model.PublicationDate.ToString("yyyy年MM月dd日")</div>
+            </li>
+            <li id="summary-isbn">
+                <div class="dt">ＩＳＢＮ：</div>
+                <div class="dd">@Model.ISBN</div>
+            </li>
+            <li id="summary-sortranking">
+                <div class="dt">所属分类：</div>
+                <div class="dd">
+                    <span>@Html.ActionLink(Model.Category.Name, "CategoryList", "Book", new { categoryId = Model.Category.ID }, null)</span>
+                </div>
+            </li>
+        </ul>
+        @using (Html.BeginForm("AddCartItem", "Cart", FormMethod.Post, new { id = "submitCart" }))
+        {
+            <ul id="choose">
+                <li id="choose-info"></li>
+                <li id="choose-amount">
+                    <div class="dt">购买数量：</div>
+                    <div class="dd">
+                        <div class="wrap-input">
+                            <a onclick="$('#bcount').val(parseInt($('#bcount').val()) - 1)" href="javascript:;" class="btn-reduce">减少数量</a>
+                            <a onclick="$('#bcount').val(parseInt($('#bcount').val()) + 1)" href="javascript:;" class="btn-add">增加数量</a>
+                            @Html.Hidden("bookId", Model.ID)
+                            @Html.TextBox("count", 1, new { id = "bcount", @class = "text" })
+                        </div>
+                    </div>
+                </li>
+                <li id="choose-btns">
+                    <div class="btn" id="choose-btn-append">
+                        <a id="InitCartUrl" class="btn-append" onclick="$('#submitCart').submit()">加入购物车<b></b></a>
+                    </div>
+                </li>
+            </ul>
+        }
+    </div>
+    <div class="clr"></div>
+    <div id="preview">
+        <div id="spec-n1">
+            <img width="350" height="350" src="@(WebConfig.BookImageFileServer + Model.Picture)" alt="@Model.MainTitle"/>
+        </div>
+        <div id="short-share">
+            <div class="share-list" id="share-list">
+                <div class="share-bd">
+                    <em class="share-hd">分享到：</em>
+                    <ul class="share-list-item clearfix share-list-item-all">
+                        @foreach (var s in shares)
+                        {
+                            <li>@Html.ActionLink(s.Text, "CategoryList", "Book", null, new { title = s.Title, id = s.Id })</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="product-detail" class="m m1" data-widget="tabs">
+    <div id="product-detail-1" class="mc" data-widget="tab-content">
+        <ul class="detail-list">
+            <li class="fore4">商品编码：@Model.ID</li>
+            <li class="fore2">作者： 
+                @{
+                    int ii = 0;
+                    foreach (var a in Model.Authors)
+                    {
+                        if (ii >= 1)
+                        {@MvcHtmlString.Create("，")}
+                    @Html.ActionLink(a.Name, "AuthorList", "Book", new { authorId = a.ID }, null)
+                        ii++;
+                    }
+                }著
+            </li>
+            <li class="fore2">出版社：
+                @{
+                    int jj = 0;
+                    foreach (var p in Model.Presses)
+                    {
+                        if (jj >= 1)
+                        {@MvcHtmlString.Create("，")}
+                    @Html.ActionLink(p.Name, "PressList", "Book", new { pressId = p.ID }, null)
+                        jj++;
+                    }
+                }
+            </li>
+            <li class="fore10">印刷时间：@Model.PrintingTime.GetValueOrDefault().ToString("yyyy年MM月dd日")</li>
+            <li class="fore12">页数：@Model.PageNum</li>
+            <li class="fore13">正文语种：@Model.Language</li>
+        </ul>
+        <div class="sub-m m1">
+            <div class="sub-mt">
+                <h3>内容简介</h3>
+            </div>
+            <div class="sub-mc">
+                <div class="con">
+                    @MvcHtmlString.Create(Model.Introduction)
+                </div>
+            </div>
+        </div>
+        <div class="sub-m m1">
+            <div class="sub-mt">
+                <h3>作者简介</h3>
+            </div>
+            <div class="sub-mc">
+                <div class="con">
+                    @foreach (var a in Model.Authors)
+                    {
+                        @MvcHtmlString.Create(a.Introduction)<br/>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="sub-m m1">
+            <div class="sub-mt">
+                <h3>目录</h3>
+            </div>
+            <div class="sub-mc">
+                <div class="con">
+                    @MvcHtmlString.Create(Model.Catalog)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,144 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mini-splitter" style="width: 100%; height: 100%;">
+    <div showcollapsebutton="true" size="200">
+        <div class="mini-fit">
+            <ul id="departments" class="mini-tree" onnodeclick="departmentClick" url="@Url.Action("AllDepartment", "DepManage")" style="width: 100%;"
+                showtreeicon="true" textfield="Name" idfield="ID" parentfield="ParentID" resultastree="false">
+            </ul>
+        </div>
+    </div>
+
+    <div>
+        <div id="sysUserList" class="mini-datagrid" width="100%" height="400" url="@Url.Action("SysUserList", "UserRole")"
+     allowResize="true"  idField="ID" sizeList="[20,30,50,100]" showColumnsMenu="true" allowCellEdit="true" allowCellSelect="true">
+            <div property="columns">
+                <div field="Roles" width="200" hideable="true" headeralign="center" allowsort="true">
+                    所属角色
+                    <input id="beRoles" property="editor" class="mini-buttonedit" emptytext="暂无角色..."
+                         onbuttonclick="onButtonEditClick" selectonfocus="true" allowInput="false" />
+                </div>
+                <div field="LoginName" width="120" hideable="true" headeralign="center" allowsort="true">
+                    员工帐号
+                <input id="loginNameFilter" property="filter" class="mini-textbox" onvaluechanged="onLoginNameFilterChanged" style="width: 100%;" />
+                </div>
+                <div field="Name" width="80" headeralign="center" hideable="true" allowsort="true">
+                    姓名
+                <input id="nameFilter" property="filter" class="mini-textbox" onvaluechanged="onNameFilterChanged" style="width: 100%;" />
+                </div>
+                <div field="Gender" width="100" align="center" allowsort="true">性别</div>
+                <div field="DepartmentID" displayfield="DepartmentName" width="120">所属部门</div>
+                <div field="Position" width="100">职位</div>
+                <div field="IsAdmin" width="60" headeralign="center" align="center" allowsort="true">Admin?</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var sysUserList = null;
+    var loginNameFilter = null;
+    var nameFilter = null;
+
+    $(function () {
+        mini.parse();
+
+        sysUserList = mini.get("sysUserList");
+        loginNameFilter = mini.get("loginNameFilter");
+        nameFilter = mini.get("nameFilter");
+
+        sysUserList.on("drawcell", function (e) {
+            var record = e.record,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+
+            //if (field == "Salary") {
+            //    if (value)
+            //        e.cellHtml = "￥" + value;
+            //    if (value > 10000)
+            //        e.cellStyle = "color:red;font-weight:bold;";
+            //}
+            if (field == "Age") {
+                if (value)
+                    e.cellHtml = value + "岁";
+            }
+            if (field == "IsAdmin") {
+                if (value)
+                    e.cellHtml = "是";
+                e.cellHtml = "否";
+            }
+            if (column.field == "Gender") {
+                if (value == "0") {
+                    //e.cellHtml = "<span class='icon-female'></span>";
+                    e.cellHtml = "女";
+                } else if (value == "1") {
+                    //e.cellHtml = "<span class='icon-male'></span>";
+                    e.cellHtml = "男";
+                } else {
+                    e.cellHtml = "未知";
+                }
+            }
+        });
+
+        sysUserList.load();
+    });
+
+    function onButtonEditClick(e) {
+        var btnEdit = this;
+        var userId = sysUserList.getSelected().ID;
+
+        mini.open({
+            url: "/Admin/UserRole/SelectForm?userID=" + userId,
+            title: "角色选择框",
+            width: 350,
+            height: 350,
+            ondestroy: function (action) {
+
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+
+                    var roles = iframe.contentWindow.GetData();
+                    roles = mini.clone(roles);
+                    var roleNames = [];
+                    for (var i = 0; i < roles.length; i++) {
+                        roleNames.push(roles[i].Name);
+                    }
+                    btnEdit.setText(roleNames.join("，"));
+                    btnEdit.setValue(roleNames.join("，"));
+                    sysUserList.commitEdit();
+                }
+            }
+        });
+    }
+
+    function onNameFilterChanged(e) {
+        var dept = departments.getSelectedNode();
+        var key;
+        if (departments.isLeaf(dept))
+            key = "department-" + dept.ID + ",";
+
+        var textbox = e.sender;
+        key += "name-" + textbox.getValue();
+        grid.load({ key: key });
+    }
+
+    function onLoginNameFilterChanged(e) {
+        var dept = departments.getSelectedNode();
+        var key;
+        if (departments.isLeaf(dept))
+            key = "department-" + dept.ID + ",";
+
+        var textbox = e.sender;
+        key += "loginname-" + textbox.getValue();
+        grid.load({ key: key });
+    }
+
+    function departmentClick(e) {
+        if (!e.isLeaf)
+            return;
+        sysUserList.load({ key: "department-" + e.node.ID });
+    }
+</script>

@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "用户注册";
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+@model Justin.BookShop.Entities.User
+
+<link href="~/Content/themes/register.css" rel="stylesheet" />
+
+
+@using (Html.BeginForm("Register", "User", FormMethod.Post, new { id = "msform" }))
+{
+    if (ViewBag.Error != null)
+    {
+        <label class="error">注册失败：@ViewBag.Error</label>
+    }
+    <ul id="progressbar">
+        <li class="active">登录信息</li>
+        <li>基本信息</li>
+        <li>联系方式</li>
+    </ul>
+    <fieldset>
+        <h2 class="fs-title">登录信息</h2>
+        <h3 class="fs-subtitle">以下信息用来允许您登陆系统</h3>
+        @Html.TextBoxFor(m => m.LoginName, new { placeholder = "请输入用户名" })
+        @Html.PasswordFor(m => m.Password, new { placeholder = "请输入密码" })
+        @Html.Password("RePassword", null, new { @placeholder = "重复密码" })
+        <input type="button" class="next action-button" value="下一步"/>
+    </fieldset>
+    <fieldset>
+        <h2 class="fs-title">基本信息(选填)</h2>
+        <h3 class="fs-subtitle">让我们更了解您</h3>
+        @Html.TextBoxFor(m => m.Name, new { placeholder = "您的姓名" })
+        @Html.TextBoxFor(m => m.Age, new { placeholder = "您的年龄" })
+        @Html.TextBoxFor(m => m.School, new { placeholder = "您的毕业院校" })
+        <input type="button" class="previous action-button" value="上一步" />
+        <input type="button" class="next action-button" value="下一步" />
+    </fieldset>
+    <fieldset>
+        <h2 class="fs-title">联系方式</h2>
+        <h3 class="fs-subtitle">我们该如何联系您？</h3>
+        @Html.TextBoxFor(m => m.Phone, new { placeholder = "您的电话" })
+        @Html.TextBoxFor(m => m.Email, new { placeholder = "您的邮箱" })
+        <input type="button" class="previous action-button" value="上一步" />
+        <input type="submit" class="submit action-button" value="提交" />
+    </fieldset>
+}
+<script src="~/Scripts/jquery.easing.min.js"></script>
+<script src="~/Scripts/register.js"></script>

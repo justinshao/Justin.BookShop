@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="loginWindow" class="mini-window" title="管理员登录" style="width: 350px; height: 165px;"
+    showmodal="true" showclosebutton="false">
+
+    <div id="loginForm" style="padding: 15px; padding-top: 10px;">
+        <table>
+            <tr>
+                <td style="width: 60px;">
+                    <label for="username$text">帐号：</label></td>
+                <td>
+                    <input id="username" name="username" class="mini-textbox" requirederrortext="用户名不能为空"  required="true" style="width: 150px;" />
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 60px;">
+                    <label for="pwd$text">密码：</label></td>
+                <td>
+                    <input id="pwd" name="pwd" class="mini-password" requirederrortext="密码不能为空" required="true" style="width: 150px;" onenter="onLoginClick" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td style="padding-top: 5px;">
+                    <a onclick="onLoginClick" class="mini-button" style="width: 60px;">登录</a>
+                    <a onclick="onResetClick" class="mini-button" style="width: 60px;">重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+
+    var loginWindow = mini.get("loginWindow");
+    loginWindow.show();
+
+    function onLoginClick(e) {
+        var form = new mini.Form("#loginWindow");
+
+        form.validate();
+        if (form.isValid() == false) return;
+        var o = form.getData();
+
+        var messageid = mini.loading("登录中，请稍后...", "登录中...");
+        $.ajax({
+            url: "/Admin/User/Login",
+            data: { name: o.username, password: o.pwd },
+            dataType: "json",
+            type: "post",
+            success: function (result) {
+                mini.hideMessageBox(messageid);
+                if (result.Success) {
+                    loginWindow.hide();
+                    mini.loading("登录成功，马上转到系统...", "登录成功");
+                    window.location = result.RedirectUrl;
+                } else {
+                    mini.alert("<b>登录失败！</b><br>错误信息：" + result.ErrorMessage, "错误消息");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus, "错误消息");
+            }
+        });
+    }
+    function onResetClick(e) {
+        var form = new mini.Form("#loginWindow");
+        form.clear();
+    }
+</script>

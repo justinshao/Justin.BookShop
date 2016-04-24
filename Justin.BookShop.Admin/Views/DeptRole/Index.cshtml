@@ -1,0 +1,65 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dept" class="mini-treegrid" style="width:700px;height:300px;"  ondrawnode="drawnode"   
+    url="@Url.Action("AllDepartment", "DeptRole")" treecolumn="colName" idField="ID" parentField="ParentID"
+    allowResize="true" expandOnLoad="true" showtreeicon="true" resultastree="false"
+    allowCellEdit="true" allowCellSelect="true" multiSelect="false">
+    <div property="columns">
+        <div name="colName" field="Name" width="100">部门名称</div> 
+        <div field="Roles" width="300" hideable="true" headeralign="center">
+            所属角色
+            <input id="beRoles" property="editor" class="mini-buttonedit" emptytext="暂无角色..."
+                 onbuttonclick="onButtonEditClick" selectonfocus="true" allowInput="false" />
+        </div>                        
+    </div>
+</div>
+
+<script type="text/javascript">
+    var tree = null;
+
+    $(function () {
+        mini.parse();
+        tree = mini.get("dept");
+    });
+
+    function drawnode(e) {
+        if (e.isLeaf) {
+            e.iconCls = "icon-cdept";
+        } else {
+            e.iconCls = "icon-dept";
+        }
+    }
+
+    function onButtonEditClick(e) {
+        var selected = tree.getSelectedNode();
+        if (!selected || !tree.isLeaf(selected))
+            return;
+
+        var btnEdit = this;
+        var deptId = selected.ID;
+
+        mini.open({
+            url: "/Admin/DeptRole/SelectForm?deptID=" + deptId,
+            title: "角色选择框",
+            width: 350,
+            height: 350,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+
+                    var roles = iframe.contentWindow.GetData();
+                    roles = mini.clone(roles);
+                    var roleNames = [];
+                    for (var i = 0; i < roles.length; i++) {
+                        roleNames.push(roles[i].Name);
+                    }
+                    btnEdit.setText(roleNames.join("，"));
+                    btnEdit.setValue(roleNames.join("，"));
+                    tree.commitEdit();
+                }
+            }
+        });
+    }
+</script>

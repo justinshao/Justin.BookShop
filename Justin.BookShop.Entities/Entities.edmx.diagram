@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="3ca4a5873242469bb506cee9f6deaf79" Name="关系图1" ZoomLevel="77" >
+        <EntityTypeShape EntityType="Entities.User" Width="1.625" PointX="15" PointY="1.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Entities.Permission" Width="1.5" PointX="19.875" PointY="2" />
+        <EntityTypeShape EntityType="Entities.UserRole" Width="2" PointX="17.125" PointY="0.625" />
+        <EntityTypeShape EntityType="Entities.Department" Width="1.5" PointX="17.375" PointY="3.625" />
+        <AssociationConnector Association="Entities.R_User_UserRole" />
+        <AssociationConnector Association="Entities.R_UserRole_Permission" />
+        <AssociationConnector Association="Entities.R_Department_User" />
+        <AssociationConnector Association="Entities.R_Department_UserRole" />
+        <EntityTypeShape EntityType="Entities.Book" Width="1.75" PointX="1.875" PointY="1.125" />
+        <EntityTypeShape EntityType="Entities.BookComment" Width="1.5" PointX="4.875" PointY="0.75" />
+        <AssociationConnector Association="Entities.R_User_BookComment" />
+        <AssociationConnector Association="Entities.R_Book_BookComment" />
+        <EntityTypeShape EntityType="Entities.PromotionInfo" Width="2" PointX="4.375" PointY="6.875" />
+        <EntityTypeShape EntityType="Entities.BookCategory" Width="1.5" PointX="4.75" PointY="3.875" />
+        <EntityTypeShape EntityType="Entities.Author" Width="1.5" PointX="7.125" PointY="5.875" />
+        <EntityTypeShape EntityType="Entities.Press" Width="1.5" PointX="6.875" PointY="3.375" />
+        <AssociationConnector Association="Entities.R_BookPromotionInfo_Book" />
+        <AssociationConnector Association="Entities.R_PromotionInfo_BookCategory" />
+        <AssociationConnector Association="Entities.R_PromotionInfo_Author" />
+        <AssociationConnector Association="Entities.R_Permission_Permission" />
+        <AssociationConnector Association="Entities.R_BookCategory_BookCategory" />
+        <AssociationConnector Association="Entities.R_BookCategory_Book" ManuallyRouted="false" >
+        </AssociationConnector>
+        <AssociationConnector Association="Entities.R_Press_Book" />
+        <AssociationConnector Association="Entities.R_Book_Author" />
+        <EntityTypeShape EntityType="Entities.ShoppingCart" Width="1.5" PointX="21" PointY="6.75" />
+        <EntityTypeShape EntityType="Entities.CartItem" Width="1.5" PointX="21" PointY="10.25" />
+        <AssociationConnector Association="Entities.R_CartItem_Book" />
+        <AssociationConnector Association="Entities.R_ShoppingCart_CartItem" />
+        <EntityTypeShape EntityType="Entities.Order" Width="1.5" PointX="19.125" PointY="6.75" IsExpanded="true" />
+        <AssociationConnector Association="Entities.R_User_Oder" />
+        <EntityTypeShape EntityType="Entities.OrderItem" Width="1.5" PointX="19.375" PointY="11.75" />
+        <AssociationConnector Association="Entities.R_OderItem_Book" ManuallyRouted="false" >
+        </AssociationConnector>
+        <AssociationConnector Association="Entities.R_Oder_OderItem" />
+        <EntityTypeShape EntityType="Entities.ReceiptInfo" Width="1.5" PointX="17" PointY="8.5" />
+        <AssociationConnector Association="Entities.R_User_ReceiptInfo" />
+        <AssociationConnector Association="Entities.R_Oder_ReceiptInfo" />
+        <EntityTypeShape EntityType="Entities.OderTrace" Width="1.5" PointX="15" PointY="11.25" />
+        <AssociationConnector Association="Entities.R_User_OderTrace" />
+        <AssociationConnector Association="Entities.R_Oder_OderTrace" />
+        <EntityTypeShape EntityType="Entities.BookStock" Width="1.875" PointX="10.5" PointY="12.375" />
+        <AssociationConnector Association="Entities.R_Book_BookStock" />
+        <EntityTypeShape EntityType="Entities.BookStockHistory" Width="1.875" PointX="10.75" PointY="16.375" />
+        <AssociationConnector Association="Entities.R_Book_BookStockHistory" ManuallyRouted="false" >
+        </AssociationConnector>
+        <EntityTypeShape EntityType="Entities.InStockReceipt" Width="1.75" PointX="0.5" PointY="12.375" />
+        <AssociationConnector Association="Entities.R_Press_InStockReceipt" />
+        <AssociationConnector Association="Entities.R_User_Submitted_InStockReceipt" />
+        <AssociationConnector Association="Entities.R_User_InStockReceipt_Audited" />
+        <EntityTypeShape EntityType="Entities.InStockReceiptDetail" Width="1.75" PointX="0.5" PointY="16.5" />
+        <AssociationConnector Association="Entities.R_InStockReceipt_InStockReceiptDetail" />
+        <AssociationConnector Association="Entities.R_InStockReceiptDetail_Book" />
+        <EntityTypeShape EntityType="Entities.OutStockReceipt" Width="1.5" PointX="2.75" PointY="12.375" />
+        <AssociationConnector Association="Entities.R_Submitted_OutStockReceipt_User" ManuallyRouted="false" >
+        </AssociationConnector>
+        <AssociationConnector Association="Entities.R_User_AuditedOutStockReceipt" />
+        <EntityTypeShape EntityType="Entities.OutStockReceiptDetail" Width="1.75" PointX="2.75" PointY="16.375" />
+        <AssociationConnector Association="Entities.R_OutStockReceipt_OutStockReceiptDetail" />
+        <AssociationConnector Association="Entities.R_OutStockReceiptDetail_Book" />
+        <EntityTypeShape EntityType="Entities.StocktakeReceipt" Width="1.5" PointX="4.875" PointY="12.375" />
+        <AssociationConnector Association="Entities.R_SubmittedStocktakeReceipt_User" />
+        <AssociationConnector Association="Entities.R_AuditedStocktakeReceipt_User" />
+        <EntityTypeShape EntityType="Entities.StocktakeReceiptDeatil" Width="1.5" PointX="4.75" PointY="16.25" />
+        <AssociationConnector Association="Entities.R_StocktakeReceipt_StocktakeReceiptDeatil" />
+        <AssociationConnector Association="Entities.R_StocktakeReceiptDeatil_Book" />
+        <EntityTypeShape EntityType="Entities.StockDamagedReceipt" Width="1.5" PointX="6.875" PointY="12.375" />
+        <AssociationConnector Association="Entities.R_SubmittedStockDamagedReceipt_User" />
+        <AssociationConnector Association="Entities.R_AuditedStockDamagedReceipt_User" />
+        <EntityTypeShape EntityType="Entities.StockDamagedReceiptDetail" Width="1.625" PointX="6.625" PointY="16.125" />
+        <AssociationConnector Association="Entities.R_StockDamagedReceipt_StockDamagedReceiptDetails" />
+        <AssociationConnector Association="Entities.R_StockDamagedReceiptDetail_Book" />
+        <EntityTypeShape EntityType="Entities.PriceAdjustReceipt" Width="1.5" PointX="8.625" PointY="12.375" />
+        <AssociationConnector Association="Entities.R_SubmittedPriceAdjustReceipt_User" />
+        <AssociationConnector Association="Entities.R_AuditedPriceAdjustReceipt_User" />
+        <EntityTypeShape EntityType="Entities.PriceAdjustReceiptDetail" Width="1.5" PointX="8.625" PointY="16.125" />
+        <AssociationConnector Association="Entities.R_PriceAdjustReceipt_PriceAdjustReceiptDetail" />
+        <AssociationConnector Association="Entities.R_PriceAdjustReceiptDetail_Book" />
+        <AssociationConnector Association="Entities.R_Department_Department" />
+        <AssociationConnector Association="Entities.R_User_UserPermission" />
+        <AssociationConnector Association="Entities.R_InStockReceipt_InStockReceipt" />
+        <AssociationConnector Association="Entities.R_OutStockReceipt_Order" />
+        <AssociationConnector Association="Entities.R_OutStockReceipt_OutStockReceipt" />
+        <EntityTypeShape EntityType="Entities.SysVariable" Width="1.5" PointX="14.75" PointY="16.125" />
+        <AssociationConnector Association="Entities.R_BookCategory_SpecialBook" />
+        <AssociationConnector Association="Entities.R_User_ShoppingCart" />
+        <AssociationConnector Association="Entities.R_User_AuditOrder" />
+        <EntityTypeShape EntityType="Entities.TraceInfo" Width="1.5" PointX="17" PointY="11.625" />
+        <AssociationConnector Association="Entities.R_User_TraceInfo" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

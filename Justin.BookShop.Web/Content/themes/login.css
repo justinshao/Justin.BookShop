@@ -1,0 +1,71 @@
+﻿/*登录框*/
+.controls-login {
+    color: #fff;
+    background-color: #323232;
+}
+
+.form-login {
+    padding: 20px;
+    line-height: 60px;
+    width:250px;
+    height:350px;
+    margin:0 auto;
+}
+
+    .form-login h3 {
+        font-size: 24px;
+        font-weight: normal;
+        text-align: center;
+        color:#00aec7;
+    }
+
+    .form-login input[type="text"], .form-login input[type="password"] {
+        width: 100%;
+        height: 40px;
+        border: none;
+        text-indent: 5px;
+        border-radius: 1px;
+        transition: all 300ms;
+        background-color:white;
+    }
+
+.info-list {
+    line-height: 20px;
+    color: #808080;
+    text-align:center;
+}
+
+    .info-list input[type='checkbox'] {
+        vertical-align: middle;
+        margin-right: 3px;
+    }
+
+.form-login input:focus {
+    outline: 0 none;
+    box-shadow: 0 0 0 5px #00aec7;
+}
+
+.form-login button[type="submit"] {
+    font-size: 24px;
+    color: #808080;
+    width: 100%;
+    height: 60px;
+    margin: 10px 0 0px;
+    border: none;
+    background-color: #00aec7;
+}
+    .form-login button[type="submit"]:hover {
+        cursor:pointer;
+        box-shadow: 0 0 0 2px #00aec7;
+    }
+.error {
+    color:red;
+}
+    .errorhidden {
+        display:none;
+    }
+.form-item {
+    margin:0 auto;
+    text-align:center;
+    padding-bottom:8px;
+}

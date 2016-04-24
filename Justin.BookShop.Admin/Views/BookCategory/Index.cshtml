@@ -1,0 +1,185 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mini-toolbar">
+    <a class="mini-button" iconcls="icon-add" onclick="add">新增</a>
+    <a class="mini-button" iconcls="icon-edit" onclick="beginEdit">编辑</a>
+    <a class="mini-button" iconcls="icon-remove" onclick="removeNode">删除</a>
+    <span class="separator"></span>
+    <a class="mini-button" iconcls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+</div>
+
+<ul id="categories" class="mini-tree" url="@Url.Action("List", "BookCategory")" style="width:300px;padding:5px;" height="80%"
+        showTreeIcon="true" expandOnLoad="0" textField="Name" idField="ID" contextmenu="#treeMenu"
+        parentField="ParentID" resultAsTree="false" onendedit="rename">
+</ul>
+
+<ul id="treeMenu" class="mini-contextmenu" onbeforeopen="beforeOpen">
+    <li class="separator"></li>
+    <li>
+        <span iconcls="icon-add">新增类别</span>
+        <ul>
+            <li onclick="add('after')">新增同级类别</li>
+            <li onclick="add('add')">新增子类别</li>
+        </ul>
+    </li>
+    <li name="edit" iconcls="icon-edit" onclick="beginEdit">编辑</li>
+    <li name="remove" iconcls="icon-remove" onclick="removeNode">删除</li>
+</ul>
+
+<script type="text/javascript">
+    var tree = null;
+
+    $(function () {
+        mini.parse();
+        tree = mini.get("categories");
+    });
+
+    function add(effect) {
+        var pid;
+        if (effect == "add") {
+            var parent = tree.getSelectedNode();
+            pid = parent ? parent.ID : -1;
+        } else {
+            var node = tree.getSelectedNode();
+            var parent = tree.getParentNode(node);
+            var pid = parent ? parent.ID : -1;
+        }
+
+        mini.prompt("请输入类别名称：", "输入类别", function (action, name) {
+            if (action == "ok") {
+                ////////////////////////////////////
+                // 在这里做远程处理（新增）
+                doRemoteAdd(pid, name);
+            }
+        });
+    }
+
+    function removeNode(e) {
+        var node = tree.getSelectedNode();
+        var allow = tree.isLeaf(node);
+
+        if (node && allow) {
+            mini.confirm("确定删除选中类别?", "确定？",
+            function (action) {
+                if (action == "ok") {
+                    ////////////////////////////////////
+                    // 在这里做远程处理（删除）
+                    var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+                    $.ajax({
+                        type: "post",
+                        url: "/Admin/BookCategory/Remove",
+                        data: { id: node.ID },
+                        dataType: "json",
+                        success: function (data) {
+                            mini.hideMessageBox(messageid);
+                            var returnData = data;
+                            if (returnData.Success) {
+                                showTip("数据保存成功！", "success");
+                                tree.reload();
+                            } else {
+                                mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            mini.hideMessageBox(messageid);
+                            mini.alert("<b>出现错误！</b><br/>" +
+                                "错误信息：" + errorThrown, +
+                                "<br/>状态码：" + textStatus, "错误消息");
+                        }
+                    });
+                }
+            }
+        );
+        }
+    }
+
+    function doRemoteAdd(pid, name) {
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            type: "post",
+            url: "/Admin/BookCategory/Add",
+            data: JSON.stringify({ ID: -1, ParentID: pid, Name: name }),
+            dataType: "json",
+            contentType: "application/json;charset=utf-8",
+            success: function (returnData) {
+                mini.hideMessageBox(messageid);
+                if (returnData.Success) {
+                    showTip("数据保存成功！", "success");
+                    tree.reload();
+                } else {
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function rename(e) {
+        var newName = e.node.Name;
+        var node = e.node;
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            type: "post",
+            url: "/Admin/BookCategory/Rename",
+            data: { id: node.ID, newName: newName },
+            dataType: "json",
+            success: function (data) {
+                mini.hideMessageBox(messageid);
+                var returnData = data;
+                if (returnData.Success) {
+                    showTip("数据保存成功！", "success");
+                } else {
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus, "错误消息");
+            }
+        });
+    }
+
+    function beforeOpen(e) {
+        var menu = e.sender;
+        var node = tree.getSelectedNode();
+        if (!node) {
+            e.cancel = true;
+            return;
+        }
+
+        // 不允许删除有子节点的节点
+        var removeItem = mini.getbyName("remove", menu);
+        removeItem.show();
+        if (!tree.isLeaf(node)) {
+            removeItem.hide();
+        }
+    }
+
+    function beginEdit() {
+        var node = tree.getSelectedNode();
+        tree.beginEdit(node);
+    }
+
+    function refreshData() {
+        tree.reload();
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+</script>

@@ -1,0 +1,133 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Justin.BookShop.Controllers.Models.StocktakeReceipt
+
+<table style="width:100%">
+    <tr>
+        <input id="ID" class="mini-hidden"/>
+        <td style="text-align:right; vertical-align:top">备注：</td>
+        <td><textarea id="Remark" class="mini-textarea" width="90%"></textarea></td>
+    </tr>
+</table>
+
+<div class="mini-fit">
+    <div id="detail" class="mini-datagrid" width="100%" showpager="false" oncellendedit="cellEndEdit"
+        allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true">
+        <div property="columns">
+            <div type="indexcolumn"></div>
+            <div field="ISBN" width="90">
+                ISBN
+            <input property="editor" class="mini-textbox" width="100%" />
+            </div>
+            <div field="BookName" width="150">图书名称</div>
+            <div field="TakeQuantity" width="50">
+                盘盈数量
+            <input property="editor" class="mini-spinner" minvalue="0" maxvalue="100000" />
+            </div>
+            <div field="AccountPrice" width="50">核算价</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar" style="text-align: center; padding-top: 8px; padding-bottom: 8px;" borderstyle="border:0;">
+    <a class="mini-button" style="width: 60px;" iconCls="icon-ok" onclick="ok">确定</a>
+    <span style="display: inline-block; width: 25px;"></span>
+    <a class="mini-button" style="width: 60px;" iconCls="icon-cancel" onclick="cancel">取消</a>
+</div>
+
+<script type="text/javascript">
+    var detail = null;
+    var editMode = "@ViewBag.EditMode";
+
+    $(function () {
+        mini.parse();
+        detail = mini.get("detail");
+        setData();
+    });
+
+    function setData() {
+        mini.get('ID').setValue('@(Model.ID)');
+        mini.get('Remark').setValue('@Model.Remark');
+        detail.addRows(mini.decode('@(MvcHtmlString.Create(ViewBag.Detail as string))', true));
+    }
+    
+    function getData() {
+        var receipt = {};
+        receipt.ID = mini.get('ID').value;
+        receipt.NO = "";
+        receipt.Remark = mini.get('Remark').value;
+        receipt.Details = [];
+        for (var i = 0; i < detail.data.length - 1; i++) {
+            if (!detail.data[i].BookID)
+                continue;
+            receipt.Details.push(detail.data[i]);
+        }
+
+        return receipt;
+    }
+
+    function ok() {
+        CloseWindow("ok");
+    }
+
+    function cancel() {
+        CloseWindow("cancel");
+    }
+
+    function cellEndEdit(e) {
+        if (e.field == "ISBN" && e.value) {
+            $.ajax({
+                url: "/Admin/Book/GetByISBN?isbn=" + e.value,
+                type: "get",
+                success: function (data) {
+                    if (data.Success && data.Data) {
+                        e.record.BookID = data.Data.ID;
+                        e.record.AccountPrice = data.Data.AccountPrice;
+                        e.record.BookName = data.Data.Name;
+                        if (e.rowIndex == detail.data.length - 1)
+                            detail.addRow({},detail.data.length);
+                        detail.accept();
+                    } else if (!data.Data) {
+                        e.record.BookID = 0;
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus);
+                }
+            });
+        } else if (e.field == "ISBN" && !e.value) {
+            if (e.rowIndex < detail.data.length - 1)
+                detail.removeRow(e.row, true);
+            detail.accept();
+        }
+    }
+
+    function CloseWindow(action) {
+        if (action == "ok") {
+            var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+            $.ajax({
+                url: "/Admin/Receipt/SaveStocktakeReceipt?mode=" + (editMode == "add" ? 1 : 2),
+                type: "post",
+                contentType: "application/json;",
+                data: JSON.stringify(getData()),
+                success: function (result) {
+                    if (result.Success) {
+                        if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+                        else window.close();
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                            "错误信息：" + errorThrown, +
+                            "<br/>状态码：" + textStatus);
+                }
+            });
+        } else {
+            if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+            else window.close();
+        }
+    }
+</script>

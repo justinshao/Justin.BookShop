@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+@using Justin.BookShop.Common.IoCManagement;
+@using Justin.BookShop.IService;
+@using Justin.BookShop.Entities;
+@{
+    var user = System.Web.HttpContext.Current.Session["user"] as User;
+    IEnumerable<Permission> menues = new List<Permission>();
+    if(user != null)
+    {
+        menues = ContainerManager.Current.Resolve<IUserService>().GetUserCenterMenu(user.ID);
+    }
+}
+
+<div id="content">
+    <div class="wrapper">
+        <div class="aside">
+            @Html.Partial("UserCenterMenu", menues)
+        </div>
+
+        <div class="mainContent">
+            <h2>Welcome to our shop!</h2>
+            <div class="txt1">
+                一个人总要走陌生的路，看陌生的风景，听陌生的歌，<br />
+                然后在某个不经意的瞬间，你会发现，原本是费尽心机想要忘记的事情真的就那么忘记了。<br />
+            </div>
+            <div class="line-hor"></div>
+            <div class="wrapper">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>

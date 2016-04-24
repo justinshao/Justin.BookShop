@@ -1,0 +1,48 @@
+﻿[
+    
+	{ ID: "submitReceipt", Name: "单据输入", Icon: "icon-input"},
+		{ ID: "sinReceipt", ParentID: "submitReceipt", Name: "入库单输入", Icon: "icon-instock", Url: "/Admin/Receipt/SubmitIndex?type=1" },
+		{ ID: "soutReceipt", ParentID: "submitReceipt", Name: "出库单输入", Icon: "icon-out", Url: "/Admin/Receipt/SubmitIndex?type=2" },
+		{ ID: "stakeReceipt", ParentID: "submitReceipt", Name: "盘库单输入", Icon: "icon-take", Url: "/Admin/Receipt/SubmitIndex?type=3" },
+		{ ID: "sdammageReceipt", ParentID: "submitReceipt", Name: "报损单输入", Icon: "icon-damage", Url: "/Admin/Receipt/SubmitIndex?type=4" },
+		{ ID: "sadjustReceipt", ParentID: "submitReceipt", Name: "调价但输入", Icon: "icon-adjust", Url: "/Admin/Receipt/SubmitIndex?type=5" },
+	
+	{ ID: "auditReceipt", Name: "单据审核", Icon: "icon-audit"},
+		{ ID: "ainReceipt", ParentID: "auditReceipt", Name: "入库单审核", Icon: "icon-instock", Url: "/Admin/Receipt/AuditIndex?type=1" },
+		{ ID: "aoutReceipt", ParentID: "auditReceipt", Name: "出库单审核", Icon: "icon-out", Url: "/Admin/Receipt/AuditIndex?type=2" },
+		{ ID: "atakeReceipt", ParentID: "auditReceipt", Name: "盘库单审核", Icon: "icon-take", Url: "/Admin/Receipt/AuditIndex?type=3" },
+		{ ID: "adammageReceipt", ParentID: "auditReceipt", Name: "报损单审核", Icon: "icon-damage", Url: "/Admin/Receipt/AuditIndex?type=4" },
+		{ ID: "aadjustReceipt", ParentID: "auditReceipt", Name: "调价但审核", Icon: "icon-adjust", Url: "/Admin/Receipt/AuditIndex?type=5" },
+
+	{ ID: "voidReceipt", Name: "单据作废", Icon: "icon-waste"},
+		{ ID: "vinReceipt", ParentID: "voidReceipt", Name: "入库单作废", Icon: "icon-instock", Url: "/Admin/Receipt/VoidIndex?type=1" },
+		{ ID: "voutReceipt", ParentID: "voidReceipt", Name: "出库单作废", Icon: "icon-out", Url: "/Admin/Receipt/VoidIndex?type=2" },
+
+	{ ID: "order", Name: "订单处理", Icon: "icon-order"},
+		{ ID: "auditOrder", ParentID: "order", Name: "订单审核", Icon: "icon-auditorder", Url: "/Admin/OrderManage/AuditIndex" },
+		{ ID: "orderPosition", ParentID: "order", Name: "到站登记", Icon: "icon-posotion", Url: "/Admin/OrderManage/PositionInfo" },
+		{ ID: "orderInfo", ParentID: "order", Name: "到站信息", Icon: "icon-tip", Url: "/Admin/OrderManage/SetOrderTrace" },
+	
+	{ ID: "sale", Name: "销售管理", Icon: "icon-sale"},
+		{ ID: "bookPrice", ParentID: "sale", Name: "图书价格", Icon: "icon-price", Url: "/Admin/Sale/Price" },
+		{ ID: "bookPromotion", ParentID: "sale", Name: "图书促销", Icon: "icon-promotion", Url: "/Admin/Sale/Promotion" },
+		{ ID: "bookPromotion", ParentID: "sale", Name: "上架下架", Icon: "icon-onsale", Url: "/Admin/Sale/OnAndOffSale" },
+
+	{ ID: "sys_sec", Name: "系统安全", Icon: "icon-secur"},
+		{ ID: "userRole", ParentID: "sys_sec", Name: "用户角色", Icon: "icon-role", Url: "/Admin/UserRole/Index" },
+		{ ID: "userPerms", ParentID: "sys_sec", Name: "用户权限", Icon: "icon-userPerms", Url: "/Admin/UserPerms/Index" },
+		{ ID: "rolePerms", ParentID: "sys_sec", Name: "角色权限", Icon: "icon-perms", Url: "/Admin/RolePerms/Index" },
+		{ ID: "deptRole", ParentID: "sys_sec", Name: "部门角色", Icon: "icon-dept", Url: "/Admin/DeptRole/Index" },
+
+	{ ID: "bookEdit", Name: "图书编辑", Icon: "icon-bookEdit"},
+		{ ID: "book", ParentID: "bookEdit", Name: "书籍管理", Icon: "icon-book", Url: "/Admin/Book/Index"},
+		{ ID: "bookCategory", ParentID: "bookEdit", Name: "书籍类别", Icon: "icon-category", Url: "/Admin/BookCategory/Index"},
+		{ ID: "author", ParentID: "bookEdit", Name: "图书作者", Icon: "icon-author", Url: "/Admin/Author/Index"},
+
+    { ID: "base", Name: "基础数据", Icon: "icon-data"},
+		{ ID: "sysUser", ParentID: "base", Name: "系统用户", Icon: "icon-user", Url: "/Admin/UserManage/Index"},
+		{ ID: "sysRole", ParentID: "base", Name: "系统角色", Icon: "icon-role", Url: "/Admin/RoleManage/Index"},
+		{ ID: "sysPermission", ParentID: "base", Name: "系统权限", Icon: "icon-perms", Url: "/Admin/PermsManage/Index"},
+		{ ID: "dept", ParentID: "base", Name: "组织机构", Icon: "icon-dept", Url: "/Admin/DepManage/Index"},
+		{ ID: "press", ParentID: "base", Name: "图书出版社", Icon: "icon-press", Url: "/Admin/Press/Index"}
+]

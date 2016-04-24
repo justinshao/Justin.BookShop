@@ -1,0 +1,256 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Justin.BookShop.Controllers.Admin;
+
+<script src="~/Scripts/jquery.tmpl.js"></script>
+<div class="mini-toolbar">
+    <a class="mini-button" iconCls="icon-add" onclick="onSale">上架</a>
+    <a class="mini-button" iconCls="icon-edit" onclick="offSale">下架</a>
+    <span class="separator"></span>    
+    <a class="mini-button" iconCls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+</div>
+<!--books-->
+<div id="books" class="mini-datagrid" width="100%" height="90%"
+    url="@Url.Action("List", "Book")" enablehottrack="false" allowRowSelect="true"
+    onshowrowdetail="onShowRowDetail" autohiderowdetail="false" allowResize="true" showFilterRow="true">
+    <div property="columns">
+        <div type="indexcolumn"></div>
+        <div type="expandcolumn"></div>
+        <div field="ISBN" width="100">ISBN
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'isbn')" style="width:100%;" />
+        </div>
+        <div field="Name" width="120" headeralign="center" allowsort="true">书名
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'name')" style="width:100%;" />
+        </div>
+        <div field="AuthorNames" width="100">作者
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'author')" style="width:100%;" />
+        </div>
+        <div field="PressNames" width="100">出版社
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'press')" style="width:100%;" />
+        </div>
+        <div field="OnSale" type="checkboxcolumn" width="50" align="center" align="center" allowsort="true">是否在售</div>
+        <div field="ShowOnBanner" type="checkboxcolumn" width="50" align="center" align="center" allowsort="true">Banner？</div>
+        <div field="PromotedOnFront" type="checkboxcolumn" width="50" align="center" align="center" allowsort="true">首页？</div>
+        <div field="OfficialPrice" width="50" dataType="currency" headeralign="center" align="center" allowsort="true">定价</div>
+        <div field="SellingPrice" width="50" dataType="currency" allowsort="true" align="center" headeralign="center">售价</div>
+        <div field="AddedTime" width="100" headeralign="center" dateformat="yyyy年MM月dd日" allowsort="true">上架时间</div>
+    </div>
+</div>
+
+<!--editWindow-->
+<div id="editWindow" class="mini-window" title="图书上架" style="width: 300px;"
+    showmodal="true" allowresize="true" allowdrag="true" showmaxbutton="true">
+    <div id="editForm" class="form" style="text-align:center">
+        <div name="showOnBanner" class="mini-checkbox" checked="false" readOnly="false" text="是否在首页Banner区显示"></div><br />
+        <div name="showOnFront" class="mini-checkbox" checked="false" readOnly="false" text="是否作为首页特色商品"></div><br />
+        作为一下类别的特色商品：<br />
+        <input id="specialCategoryIds" name="specialCategoryIds" class="mini-treeselect" url="@Url.Action("List", "BookCategory")" 
+                    valueField="ID" textField="Name" idField="ID" parentField="ParentID" expandOnLoad="true"
+                    width="100%" showFolderCheckBox="true" autoCheckParent="true" allowInput="true" multiselect="true"
+                    valueFromSelect="true" /><br />
+        <a class="mini-button" iconCls="icon-ok" onclick="ok">确定</a> 
+        <a class="mini-button" iconCls="icon-cancel" onclick="cancel">取消</a>
+    </div>
+</div>
+
+<!--template-->
+<script id="formTemplate" type="text/x-jquery-tmpl">
+    <table class="detailForm">
+        <tr>
+            <td rowspan="3" colspan="2">
+                <img class="book-big" src="@(WebConfig.BookImageFileServer)${Picture}"/><br />
+            </td>
+            <td style="width:10%"><b>书名：</b></td>
+            <td colspan="3"><h3>${Name}</h3></td>
+        </tr>
+        <tr>
+            <td><b>主标题：</b></td>
+            <td>${MainTitle}</td>
+            <td style="width:10%"><b>副标题：</b></td>
+            <td>${MinorTitle}</td>
+        </tr>
+        <tr>
+            <td><b>作者：</b></td>
+            <td>${AuthorNames}</td>
+            <td><b>出版社：</b></td>
+            <td>${PressNames}</td>
+        </tr>
+        <tr>
+            <td rowspan="4" colspan="2" style="text-align:center">
+                <img class="book-small" src="@(WebConfig.BookImageFileServer)${Thumbnail}" />
+            </td>
+            <td><b>页数：</b></td>
+            <td>${PageNum}</td>
+            <td><b>语言：</b></td>
+            <td>${Language}</td>
+        </tr>
+        <tr>
+            <td><b>ISBN：</b></td>
+            <td>${ISBN}</td>
+            <td><b>类别：</b></td>
+            <td>${Category}</td>
+        </tr>
+        <tr>
+            <td><b>定价：</b></td>
+            <td>￥${OfficialPrice}</td>
+            <td><b>售价：</b></td>
+            <td>￥${SellingPrice}</td>
+        </tr>
+        <tr>
+            <td><b>出版日期：</b></td>
+            <td>${PublicationDate}</td>
+            <td><b>打印日期：</b></td>
+            <td>${PrintingTime}</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top; text-align:center"><b>简介：</b></td>
+            <td colspan="5">{{html Introduction}}</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;text-align:center"><b>目录：</b></td>
+            <td colspan="5">{{html Catalog}}</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top; text-align:center"><b>摘要：</b></td>
+            <td colspan="5">{{html Digest}}</td>
+        </tr>
+    </table>
+</script>
+
+<script type="text/javascript">
+    var grid = null;
+    var editWindow = null;
+    var editForm = null;
+    var special = null;
+
+    $(function () {
+        mini.parse();
+
+        grid = mini.get("books");
+        editWindow = mini.get("#editWindow");
+        editForm = new mini.Form("#editForm");
+        special = mini.get("specialCategoryIds");
+
+        grid.load();
+    });
+
+    function onSale() {
+        var row = grid.getSelected();
+        if (!row)
+            return;
+        if (row.OnSale)
+            showTip("该书籍已经在售", "info", 3000);
+
+        editWindow.show();
+        editForm.clear();
+    }
+
+    function offSale() {
+        var row = grid.getSelected();
+        if (!row)
+            return;
+        if (!row.OnSale)
+            showTip("该书籍已经下架", "info", 3000);
+
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            url: "/Admin/Sale/SetOffSale?bookID=" + row.ID,
+            type: "post",
+            success: function (result) {
+                mini.hideMessageBox(messageid);
+                if (result.Success) {
+                    showTip("保存成功！", "success");
+                    refreshData();
+                } else {
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function getSpecialId(names) {
+        var ids = [];
+        var list = special.getList();
+        for (var i = 0; i < list.length; i++) {
+            if (names.indexOf(list[i].Name) >= 0)
+                ids.push(list[i].ID);
+        }
+
+        return ids;
+    }
+
+    function ok() {
+        var data = editForm.getData();
+        data.specialCategoryIds = getSpecialId(special.getText().split(","))
+        data.bookId = grid.getSelected().ID;
+
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            type: "post",
+            url: "/Admin/Sale/SetOnSale",
+            data: JSON.stringify(data),
+            dataType: "json",
+            contentType: "application/json;charset=utf-8",
+            success: function (data) {
+                mini.hideMessageBox(messageid);
+                var returnData = data;
+                if (returnData.Success) {
+                    refreshData();
+                    showTip("数据保存成功！", "success");
+                    editWindow.hide();
+                } else {
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus, "错误消息");
+            }
+        });
+    }
+
+    function cancel() {
+        editForm.clear();
+        editWindow.hide();
+    }
+
+    function refreshData() {
+        grid.reload();
+    }
+
+    function onFilterChanged(e, field) {
+        var key = e.getValue();
+
+        grid.load({ key: field + "-" + key });
+    }
+
+    function onShowRowDetail(e) {
+        var grid = e.sender;
+        var row = e.record;
+
+        var td = grid.getRowDetailCellEl(row);
+        td.innerHTML = "";
+        row.PublicationDate = mini.formatDate(row.PublicationDate, "yyyy年MM月dd日");
+        row.PrintingTime = mini.formatDate(row.PrintingTime, "yyyy年MM月dd日");
+        $("#formTemplate").tmpl(row).appendTo(td);
+    }
+
+    function showTip(content, state, timeout) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: (timeout ? timeout : 2000)
+        });
+    }
+</script>

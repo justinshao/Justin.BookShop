@@ -1,0 +1,141 @@
+﻿@{
+    Layout = "~/Views/Shared/WebMain.cshtml";
+}
+@using Justin.BookShop.Controllers.Client;
+@using Justin.BookShop.Entities;
+@using Justin.BookShop.Controllers.Models;
+@using Justin.BookShop.Web;
+@model Justin.BookShop.Controllers.Models.PagedBookListInfo
+@{
+    // 默认分类页面
+    if(string.IsNullOrEmpty(Model.ActionName) || string.IsNullOrEmpty(Model.ControllerName))
+    {
+        Model.ActionName = "Index";
+        Model.ControllerName = "Home";
+    }
+
+    // 设置排序按纽的url参数和样式
+    var filterClass = new string[4];
+    var filterRoutes = new RouteValueDictionary[4];
+    var filters = new[] { "salesvolume", "sellingprice", "addedtime", "publicationdate" };
+    for (int i = 0; i < filters.Length; i++)
+    {
+        // 排序按钮url参数
+        filterRoutes[i] = new RouteValueDictionary();
+        filterRoutes[i].Add(Model.PageParamName, Model.PageParamValue ?? "");
+        filterRoutes[i].Add("pageIndex", 0);
+        filterRoutes[i].Add("sortField", filters[i]);
+        filterRoutes[i].Add("sortOrder", (int)(Model.Pagination.SortOrder == SortOrder.Asc ? SortOrder.Desc : SortOrder.Asc));
+
+        // 排序按纽样式
+        if (Model.Pagination.SortField != null)
+        {
+            filterClass[i] = (Model.Pagination.SortOrder == Justin.BookShop.Entities.SortOrder.Asc ? "up " : "down ") +
+                           (Model.Pagination.SortField.Equals(filters[i], StringComparison.CurrentCultureIgnoreCase) ? "curr" : "");
+        }
+        else
+        {
+            filterClass[i] = "up";
+        }
+    }
+
+}
+<link href="~/Content/themes/book.plist.css" rel="stylesheet" />
+<link href="~/Content/themes/pager.css" rel="stylesheet" />
+<div id="filter">
+    <div class="fore1">
+        <dl class="order">
+            <dt>排序：</dt>
+            <dd class="@(filterClass[0])">@Html.ActionLink("销售排行", Model.ActionName, Model.ControllerName, filterRoutes[0], null)<b></b></dd>
+            <dd class="@(filterClass[1])">@Html.ActionLink("价格", Model.ActionName, Model.ControllerName, filterRoutes[1], null)<b></b></dd>
+            <dd class="@(filterClass[2])">@Html.ActionLink("上架时间", Model.ActionName, Model.ControllerName, filterRoutes[2], null)<b></b></dd>
+            <dd class="@(filterClass[3])">@Html.ActionLink("出版时间", Model.ActionName, Model.ControllerName, filterRoutes[3], null)<b></b></dd>
+        </dl>
+    </div>
+    <span class="clr"></span>
+</div>
+
+<div class="m" id="plist">
+    @foreach (var b in Model.Books)
+    {
+        <div class="item">
+            <dl class="info">
+                <dt class="p-name">
+                    @Html.ActionLink(b.Name, "Detail", "Book", new { bookId = b.ID }, new { target = "_blank", title = b.Name })
+                </dt>
+                <dd class="p-price">
+                    <div class="dt">售    价：</div>
+                    <div class="dd"><strong>￥@b.SellingPrice</strong>
+                    <span class="discount">（@(Math.Round(((decimal)b.SellingPrice / b.OfficialPrice), 2, MidpointRounding.AwayFromZero) * 10)折）</span></div>
+                </dd>
+                <dd class="p-market">
+                    <div class="dt">定    价：</div>
+                    <div class="dd"><del>￥@b.OfficialPrice</del></div>
+                </dd>
+                <div class="clr"></div>
+            </dl>
+            <ul class="summary">
+                <li class="summary-author">
+                    <div class="dt">作    者：</div>
+                    <div class="dd">
+                        @{
+                            int i = 0;
+                            foreach (var a in b.Authors)
+                            {
+                                if(i >= 1){
+                                    @MvcHtmlString.Create("，")
+                                }
+                                @Html.ActionLink(a.Name, "AuthorList", "Book", new { authorId = a.ID }, null)
+                                i++;
+                            }
+                         }著
+                    </div>
+                </li>
+                <li class="summary-press">
+                    <div class="dt">出 版 社：</div>
+                    <div class="dd">
+                        @{
+                            int j = 0;
+                            foreach (var p in b.Presses)
+                            {
+                                if(j >= 1){
+                                    @MvcHtmlString.Create("，")
+                                }
+                                @Html.ActionLink(p.Name, "PressList", "Book", new { pressId = p.ID }, null)
+                                j++;
+                            }
+                         }
+                    </div>
+                </li>
+                <li class="summary-time">
+                    <div class="dt">出版时间：</div>
+                    <div class="dd">@b.PublicationDate.ToString("yyyy年MM月dd日")</div>
+                </li>
+
+                <li class="summary-grade">
+                    <div class="dt">顾客评价：</div>
+                    <div class="dd"><span class="star"><span class="star-white"><span class="star-yellow h5">&nbsp;</span></span></span>
+                    @Html.ActionLink("已有" + b.Comments.Count + "评价", "Comments", new { bookId = b.ID }, new { target = "_blank" })</div>
+                </li>
+            </ul>
+            <div class="clr"></div>
+            <div class="p-img">
+                <a target="_blank" href="@Url.Action("Detail", "Book", new { bookId = b.ID})" title="@b.MainTitle">
+                    <img data-img="1" width="160" height="160" alt="@b.MainTitle" src="@(WebConfig.BookImageFileServer + b.Picture)" class="err-product"/>
+                </a>
+            </div>
+            <div class="btns">
+                @Html.ActionLink("加入购物车", "AddCartItem", "Cart", new { bookId = b.ID, count = 1 }, new { target = "_blank", @class = "btn-gray btn-append" })
+            </div>
+        </div>
+    }
+</div>
+<div style="text-align:center">
+    @if(Model.Total > Model.Pagination.PageSize){
+        var routeValue = new RouteValueDictionary();
+        routeValue.Add(Model.PageParamName, Model.PageParamValue ?? "");
+        routeValue.Add("sortField", Model.Pagination.SortField);
+        routeValue.Add("sortOrder", (int)Model.Pagination.SortOrder);
+        @MvcHtmlString.Create(PagingControl.GenerateControl(Model.Pagination.PageIndex, Model.Pagination.PageSize, Model.Total, Url.Action(Model.ActionName, Model.ControllerName, routeValue), false))    
+    }
+</div>

@@ -1,0 +1,111 @@
+﻿@{
+    ViewBag.Title = "OrderList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/themes/receipt.css" rel="stylesheet" />
+
+<div class="mini-splitter" style="width: 100%; height: 100%;">
+    <div showcollapsebutton="true" size="40">
+        <div id="orderList" class="mini-datagrid" width="100%" height="100%" showPager="false" 
+            onselectionchanged="selectionchanged" idField="ID" url="@Url.Action("NonAuditedList", "OrderManage")">
+            <div property="columns">
+                <div field="NO" headeralign="center">订单号</div>
+            </div>
+        </div>
+    </div>
+    <div size="240">
+        <div class="mini-toolbar">
+        </div>
+        <div id="receiptBody" class="mini-fit">
+            @RenderBody()
+        </div>
+        <div class="mini-toolbar" style="text-align:center">
+            <a class="mini-button" iconcls="icon-ok" onclick="pass">审核通过</a>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var selectedID = null;
+    var orderList = null;
+
+    $(function () {
+        mini.parse();
+
+        orderList = mini.get("orderList");
+        orderList.load();
+    });
+
+    function focusRow() {
+        var row = orderList.findRow(function (row) {
+            if (row.ID == selectedID) return true;
+        });
+        if (row) {
+            orderList.select(row, true);
+        } else if (orderList.getData().length > 0) {
+            orderList.select(orderList.getRow(0), true);
+        } else {
+            $("#receiptBody").html("");
+        }
+    }
+
+    function selectionchanged(e) {
+        if (e.selected) {
+            selectedID = e.selected.ID;
+            $.ajax({
+                url: "/Admin/OrderManage/GetOrder?orderID=" + selectedID,
+                dataType: "html",
+                success: function (html) {
+                    $("#receiptBody").html(html);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                            "错误信息：" + errorThrown, +
+                            "<br/>状态码：" + textStatus);
+                }
+            });
+        }
+    }
+
+    function pass() {
+        var row = orderList.getSelected();
+        if (!row)
+            return;
+
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            url: "/Admin/OrderManage/AuditOrder",
+            type: "post",
+            data: { orderId: row.ID },
+            success: function (data) {
+                mini.hideMessageBox(messageid);
+                if (data.Success) {
+                    showTip("保存成功！", "success");
+                    orderList.removeRow(row, false);
+                    orderList.reload();
+                    focusRow();
+                } else {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + data.ErrorMessage);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Center",
+            timeout: 2000
+        });
+    }
+</script>

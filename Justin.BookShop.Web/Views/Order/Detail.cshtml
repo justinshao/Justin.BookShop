@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "订单详细";
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+@using Justin.BookShop.Controllers.Client;
+@model Justin.BookShop.Entities.Order
+
+<link href="~/Content/themes/orderdetail.css" rel="stylesheet" />
+@if (Model != null)
+{
+    <div class="m" id="ordertrack">
+        <ul class="tab">
+            <li>
+                <h2>订单跟踪</h2>
+            </li>
+        </ul>
+        <div class="mc tabcon">
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tbody id="tbody_track">
+                    <tr>
+                        <th width="15%"><strong>处理时间</strong></th>
+                        <th width="50%"><strong>处理信息</strong></th>
+                        <th width="35%"><strong>操作人</strong></th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    @foreach (var t in Model.Traces.OrderBy(t => t.SubmitTime))
+                    {
+                        <tr>
+                            <td>@t.SubmitTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>@t.Description</td>
+                            <td>@t.SubmittedBy.Name</td>
+                        </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="m" id="orderinfo">
+        <div class="mt">
+            <strong>订单信息</strong>
+        </div>
+        <div class="mc">
+            <dl class="fore">
+                <dt>收货人信息</dt>
+                <dd>
+                    <ul>
+                        <li>收&nbsp;货&nbsp;人：@Model.Receipt.ReceiptName</li>
+                        <li>地&nbsp;&nbsp;&nbsp;&nbsp;址：@Model.Receipt.Address</li>
+                        <li>手机号码：@Model.Receipt.Phone</li>
+                        <li>电子邮件：@Model.Receipt.Email</li>
+                    </ul>
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    <span class="i-mt">商品清单</span>
+                </dt>
+                <dd class="p-list">
+                    <table cellpadding="0" cellspacing="0" width="100%">
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tbody>
+                                <tr>
+                                    <th width="12%">商品图片 </th>
+                                    <th width="42%">商品名称 </th>
+                                    <th width="10%">京东价 </th>
+                                    <th width="7%">商品数量 </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="img-list">
+                                            <a class="img-box" target="_blank" href="@Url.Action("Detail", "Book", new { bookId = item.BookID })">
+                                                <img width="50" height="50" src="@(WebConfig.BookImageFileServer + item.Book.Thumbnail)" title="@item.Book.MainTitle"/>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="al fl">
+                                            @Html.ActionLink(item.Book.MainTitle, "Detail", "Book", new { bookId = item.BookID }, new { target = "_blank", @class = "flk13" })
+                                        </div>
+                                    </td>
+                                    <td><span class="ftx04">￥@item.UnitPrice</span></td>
+                                    <td>@item.Quantity</td>
+                                </tr>
+                            </tbody>
+                    }
+                    </table>
+                </dd>
+            </dl>
+        </div>
+        <!--金额-->
+        <div class="total">
+            <ul>
+                <li><span>总商品金额：</span>￥@Model.OrderItems.Sum(i => i.UnitPrice * (decimal)i.Quantity)</li>
+                <li><span>+ 运费：</span>￥@Model.Freight</li>
+            </ul>
+            <div class="extra">
+                应付总额：<span class="ftx04"><b>￥@Model.OrderPrice</b></span>
+            </div>
+        </div>
+    </div>   
+}
+else
+{
+    <h2>没有订单信息哦~</h2>
+}

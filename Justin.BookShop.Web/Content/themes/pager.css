@@ -1,0 +1,31 @@
+﻿.pagination
+{
+    margin:5px;
+}
+
+.pagination a
+{
+    padding-left:4px;
+    padding-right:4px;
+    border: solid 1px #E6E6E6;
+    color: #585858;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.pagination a:visited
+{
+    padding: 1px 6px;
+    border: solid 1px #ddd;
+    background: #fff;
+    text-decoration: none;
+}
+
+.pagination a:hover
+{
+    border: solid 1px #F50;
+    color: #f60;
+    text-decoration: none;
+}
+        
+        

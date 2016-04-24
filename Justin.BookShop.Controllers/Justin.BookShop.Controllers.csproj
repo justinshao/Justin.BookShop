@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DA752CDA-08AB-4E96-9E61-3EB0087FC8FF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Justin.BookShop.Controllers</RootNamespace>
+    <AssemblyName>Justin.BookShop.Controllers</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.v12.1, Version=12.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Printing.v12.1.Core, Version=12.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Utils.v12.1, Version=12.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraEditors.v12.1, Version=12.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdminController.cs" />
+    <Compile Include="Admin\OrderManageController.cs" />
+    <Compile Include="Admin\ReceiptController.cs" />
+    <Compile Include="Admin\SaleController.cs" />
+    <Compile Include="Admin\UserController.cs" />
+    <Compile Include="Admin\AuthorController.cs" />
+    <Compile Include="Admin\BookController.cs" />
+    <Compile Include="Admin\BookCategoryController.cs" />
+    <Compile Include="Admin\DepManageController.cs" />
+    <Compile Include="Admin\DeptRoleController.cs" />
+    <Compile Include="Admin\PermsManageController.cs" />
+    <Compile Include="Admin\PressController.cs" />
+    <Compile Include="Admin\RoleManageController.cs" />
+    <Compile Include="Admin\RolePermsController.cs" />
+    <Compile Include="Admin\WebConfig.cs" />
+    <Compile Include="Client\BookController.cs" />
+    <Compile Include="Client\CartController.cs" />
+    <Compile Include="Client\OrderController.cs" />
+    <Compile Include="Client\UserController.cs" />
+    <Compile Include="Admin\UserManageController.cs" />
+    <Compile Include="Admin\UserPermsController.cs" />
+    <Compile Include="Admin\UserRoleController.cs" />
+    <Compile Include="BaseController.cs" />
+    <Compile Include="Admin\HomeController.cs" />
+    <Compile Include="ClientController.cs" />
+    <Compile Include="Client\WebConfig.cs" />
+    <Compile Include="Comman\CacheHelper.cs" />
+    <Compile Include="Comman\EntityExtension.cs" />
+    <Compile Include="Comman\HtmlExtention.cs" />
+    <Compile Include="Filters\CheckClientLogin.cs" />
+    <Compile Include="ModelBinders\AuthorSelectorBinder.cs" />
+    <Compile Include="ModelBinders\BookSelectorBinder.cs" />
+    <Compile Include="ModelBinders\PermissionSelectorBinder.cs" />
+    <Compile Include="ModelBinders\PressSelectorBinder.cs" />
+    <Compile Include="ModelBinders\RoleSelectorBinder.cs" />
+    <Compile Include="ModelBinders\UserSelectorBinder.cs" />
+    <Compile Include="ModelFieldSelectors\AuthorSelector.cs" />
+    <Compile Include="ModelFieldSelectors\BookSelector.cs" />
+    <Compile Include="ModelFieldSelectors\IModelFieldSelector.cs" />
+    <Compile Include="Comman\Util.cs" />
+    <Compile Include="Comman\ValidateCode.cs" />
+    <Compile Include="Filters\CheckAdminLogin.cs" />
+    <Compile Include="Filters\MenuFilter.cs" />
+    <Compile Include="Filters\PermissionFilter.cs" />
+    <Compile Include="ModelFieldSelectors\PermissionSelector.cs" />
+    <Compile Include="ModelFieldSelectors\PressSelector.cs" />
+    <Compile Include="ModelFieldSelectors\RoleSelector.cs" />
+    <Compile Include="ModelFieldSelectors\UserSelector.cs" />
+    <Compile Include="Models\AddCartResult.cs" />
+    <Compile Include="Models\Author.cs" />
+    <Compile Include="Models\Book.cs" />
+    <Compile Include="Models\BookCategory.cs" />
+    <Compile Include="Models\BookCategoryList.cs" />
+    <Compile Include="Models\Department.cs" />
+    <Compile Include="Models\InStockReceipt.cs" />
+    <Compile Include="Models\InStockReceiptDetail.cs" />
+    <Compile Include="Models\JsonResultData.cs" />
+    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OutStockReceipt.cs" />
+    <Compile Include="Models\OutStockReceiptDetail.cs" />
+    <Compile Include="Models\PagedBookListInfo.cs" />
+    <Compile Include="Models\PaginationInfo.cs" />
+    <Compile Include="Models\Permission.cs" />
+    <Compile Include="Models\Press.cs" />
+    <Compile Include="Models\PriceAdjustReceipt.cs" />
+    <Compile Include="Models\PriceAdjustReceiptDetail.cs" />
+    <Compile Include="Models\ReceiptType.cs" />
+    <Compile Include="Models\Role.cs" />
+    <Compile Include="Models\SaveMode.cs" />
+    <Compile Include="Models\StockDamagedReceipt.cs" />
+    <Compile Include="Models\StockDamagedReceiptDetail.cs" />
+    <Compile Include="Models\StocktakeReceipt.cs" />
+    <Compile Include="Models\StocktakeReceiptDetail.cs" />
+    <Compile Include="Models\SubmitOrderResult.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="ModelBinders\PaginationInfoBinder.cs" />
+    <Compile Include="Models\UserLoginInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Justin.BookShop.Common\Justin.BookShop.Common.csproj">
+      <Project>{cce3e8f3-236a-4bc0-865e-452eadc0b7bd}</Project>
+      <Name>Justin.BookShop.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.Entities\Justin.BookShop.Entities.csproj">
+      <Project>{327d74b7-c1ac-4f0c-bea5-4c072cd91056}</Project>
+      <Name>Justin.BookShop.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.IService\Justin.BookShop.IService.csproj">
+      <Project>{9c985716-a058-4d44-97b0-4d068babfde6}</Project>
+      <Name>Justin.BookShop.IService</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

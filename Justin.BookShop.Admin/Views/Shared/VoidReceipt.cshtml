@@ -1,0 +1,145 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/themes/receipt.css" rel="stylesheet" />
+
+<div class="mini-splitter" style="width: 100%; height: 100%;">
+    <div showcollapsebutton="true" size="40">
+        <div id="receiptList" class="mini-datagrid" width="100%" height="100%" showPager="false" 
+            onselectionchanged="selectionchanged" idField="ID" url="/Admin/Receipt/AuditedList?type=@ViewBag.Type">
+            <div property="columns">
+                <div field="NO" headeralign="center">流水号</div>
+            </div>
+        </div>
+    </div>
+    <div size="240">
+        <div class="mini-toolbar">
+            查询日期：
+            <input id="dateFrom" class="mini-datepicker"/>
+            到：
+            <input id="dateTo" class="mini-datepicker"/>
+            <a class="mini-button" iconcls="icon-add" onclick="search">查询</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconcls="icon-remove" onclick="voidReceipt">作废</a>
+        </div>
+        <div id="receiptBody" class="mini-fit">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var selectedID = null;
+    var receiptList = null;
+    var listData = mini.decode('@(MvcHtmlString.Create(ViewBag.ReceiptList as string))');
+    var receiptType = @(ViewBag.Type + ";")
+
+    $(function () {
+        mini.parse();
+
+        receiptList = mini.get("receiptList");
+        receiptList.setData(listData);
+        if (receiptList.getData().length > 0)
+            receiptList.select(receiptList.getRow(0), true);
+    });
+
+    function focusRow() {
+        var row = receiptList.findRow(function (row) {
+            if (row.ID == selectedID) return true;
+        });
+        if (row) {
+            receiptList.select(row, true);
+        } else if (receiptList.getData().length > 0) {
+            receiptList.select(receiptList.getRow(0), true);
+        } else {
+            $("#receiptBody").html("");
+        }
+    }
+
+    function selectionchanged(e) {
+        if (e.selected) {
+            selectedID = e.selected.ID;
+            $.ajax({
+                url: "/Admin/Receipt/AuditedReceipt?type=" + receiptType + "&id=" + e.selected.ID,
+                dataType: "html",
+                success: function (html) {
+                    $("#receiptBody").html(html);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                            "错误信息：" + errorThrown, +
+                            "<br/>状态码：" + textStatus);
+                }
+            });
+        }
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Center",
+            timeout: 2000
+        });
+    }
+
+    function search() {
+        var dateFrom = mini.get("dateFrom").value;
+        var dateTo = mini.get("dateTo").value;
+        var data = { type: receiptType };
+        if (dateFrom && dateTo) {
+            data.fromNO = mini.formatDate(dateFrom, "yyMMdd") + "000001";
+            data.toNO = mini.formatDate(dateTo, "yyMMdd") + "999999";
+        }
+
+        var messageid = mini.loading("正在加载，请稍后...", "加载中...");
+        $.ajax({
+            url: "/Admin/Receipt/AuditedList",
+            type: "get",
+            data: data,
+            dataType:"json",
+            success: function (result) {
+                mini.hideMessageBox(messageid);
+                receiptList.setData(result);
+                focusRow();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function voidReceipt() {
+        var row = receiptList.getSelected();
+        if (!row)
+            return;
+
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            url: "/Admin/Receipt/VoidReceipt",
+            type: "post",
+            data: { type: receiptType, id: row.ID },
+            success: function (data) {
+                mini.hideMessageBox(messageid);
+                if (data.Success) {
+                    showTip("保存成功！", "success");
+                    receiptList.reload();
+                    focusRow();
+                } else {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + data.ErrorMessage);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+</script>

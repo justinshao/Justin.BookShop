@@ -1,0 +1,54 @@
+﻿.receipt {
+    border: 0px;
+    margin-top: 30px;
+    margin-left:20px;
+    width:800px;
+    border-collapse: collapse;
+}
+
+.rtitle {
+    font-size: 30px;
+    text-align: center;
+    font:bold;
+    padding-bottom:30px;
+}
+
+.rinvalid {
+    color: red;
+}
+
+.rhead {
+    font: bold;
+    margin-top:20px;
+}
+
+    .rhead td {
+        border: 1px;
+        text-align: center;
+        font-weight:700;
+    }
+
+.rdetail {
+}
+
+    .rdetail td {
+        border: 1px;
+        text-align: center;
+        border:1px solid black;
+    }
+
+.rfooter {
+    height:30px;
+}
+
+.rtdright {
+    text-align:right;
+}
+
+.rtdbolid {
+    font-weight:600;
+}
+
+.runderline {
+    border-bottom:1px solid black;
+}

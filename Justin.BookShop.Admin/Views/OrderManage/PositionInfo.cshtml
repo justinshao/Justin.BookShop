@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "PositionInfo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<center style="margin-top:100px">
+    <input id="orderNO" class="mini-textbox" width="200" emptyText="请输入商品编号"/><br />
+    <a class="mini-button" iconCls="icon-ok" onclick="onClick">确定</a>
+</center>
+
+<script type="text/javascript">
+    $(function () {
+        mini.parse();
+    });
+
+    function onClick() {
+        var orderNO = mini.get("orderNO").getValue();
+        if (!orderNO)
+            return;
+
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            url: "/Admin/OrderManage/SetPositionInfo",
+            type: "post",
+            data: { orderNO: orderNO },
+            success: function (data) {
+                mini.hideMessageBox(messageid);
+                if (data.Success) {
+                    showTip("保存成功！", "success");
+                    mini.get("orderNO").setValue("");
+                } else {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + data.ErrorMessage);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+</script>

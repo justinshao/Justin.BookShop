@@ -1,0 +1,49 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)libarary\Justin.BookShop.Entities.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Justin.BookShop.Entities.Util" #>
+<#@ output extension=".cs" #>
+using Justin.BookShop.IRepository;
+using Justin.BookShop.Common.IoCManagement;
+
+<#var modelTypes = EntityTypeUtil.FindEntityTypes();#>
+namespace Justin.BookShop.EfMsSqlRepository
+{
+    public class DbSession : IDbSession
+    {
+        IDbContext _context;
+        public DbSession(IDbContext context)
+        {
+            _context = context;
+        }
+        
+        #region Repository
+<#
+foreach(Type t in modelTypes)
+{ 
+#>
+        private I<#=t.Name#>Repository _<#=t.Name#>s;
+        public I<#=t.Name#>Repository <#=t.Name#>s
+        { 
+            get
+            {
+                if(_<#=t.Name#>s == null) 
+                    _<#=t.Name#>s = new <#=t.Name #>Repository(_context); 
+                return _<#=t.Name#>s;
+            }
+        }
+
+<#
+        }
+#>
+        #endregion
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
+        }
+    }
+}

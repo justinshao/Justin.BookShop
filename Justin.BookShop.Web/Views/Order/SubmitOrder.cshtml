@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "订单确认";
+    Layout = "~/Views/Shared/UserCenter.cshtml";
+}
+@using Justin.BookShop.Entities;
+@model Justin.BookShop.Entities.Order
+@{
+    var user = System.Web.HttpContext.Current.Session["user"] as User;
+
+    var userReceiptList = new List<SelectListItem>();
+    foreach (var r in user.Receipts)
+    {
+        userReceiptList.Add(new SelectListItem
+            {
+                Selected = false,
+                Value = r.ID.ToString(),
+                Text = string.Format("{0}，{1}，{2}", r.Address, r.ReceiptName, r.Phone)
+            });
+    }
+}
+
+<link href="~/Content/themes/cartlist.css" rel="stylesheet" />
+
+@if (Model != null && Model.OrderItems.Count > 0)
+{
+    using(Html.BeginForm("SubmitOrder", "Order", FormMethod.Post))
+    {
+        <table class="order-table">
+            <tr>
+                <th>商品名称</th>
+                <th>数量</th>
+                <th>X</th>
+                <th>单价</th>
+                <th>=</th>
+                <th style="text-align: right;">总计</th>
+            </tr>
+            @{
+                int i = 0;
+                decimal cart_total = 0;
+                foreach (var item in Model.OrderItems)
+                {
+                    decimal item_total = item.UnitPrice * (decimal)item.Quantity;
+                    @Html.Hidden(string.Format("OrderItems[{0}].BookId", i), item.BookID)
+                    @Html.Hidden(string.Format("OrderItems[{0}].Quantity", i), item.Quantity)
+                    <tr class="@((i % 2 == 0) ? "odd" : "even")">
+                        <td class="product-title">@Html.ActionLink(item.Book.Name, "Detail", "Book", new { bookId = item.Book.ID }, new { target = "_blank", title = item.Book.Name })</td>
+                        <td class="num-pallets">
+                            @Html.TextBox("Quantity", item.Quantity, new { @class = "num-pallets-input", id = "turface-pro-league-num-pallets", disabled="disabled" })
+                        </td>
+                        <td class="times">X</td>
+                        <td class="price-per-pallet">￥<span>@item.Book.SellingPrice</span></td>
+                        <td class="equals">=</td>
+                        <td class="row-total">
+                            ￥@Html.TextBox("itemTotal", item_total, new {@class="row-total-input", id="turface-pro-league-row-total", disabled="disabled"})
+                        </td>
+                    </tr>
+                    i++;
+                    cart_total += item_total;
+                }
+            }
+            <tr>
+                <td colspan="6" style="text-align: right;">产品小计:
+                    ￥@Html.TextBox("cartTotal", cart_total, new { @class = "total-box", id = "product-subtotal", disabled = "disabled" })
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right;">运费:
+                    ￥@Html.TextBox("cartTotal", Model.Freight, new { @class = "total-box", disabled = "disabled" })
+                </td>
+            </tr>
+        </table>
+        <div class="clear"></div>
+        <div style="text-align: right;">
+            <span>订单总额: </span>
+                ￥@Html.TextBox("cartTotal", cart_total + Model.Freight, new { @class = "total-box", id = "order-total", disabled = "disabled" })
+            <br />
+        </div>
+    
+        <table class="order-table">
+            <tr>
+                <th colspan="2">配送信息</th>
+            </tr>
+            <tr>
+                <td class="td-right">收件人姓名：</td>
+                <td>@Html.TextBox("Receipt.ReceiptName", user.Name, new { style = "width:200px" })</td>
+            </tr>
+            <tr>
+                <td class="td-right">收件地址：</td>
+                <td>@Html.TextBox("Receipt.Address", null, new { style = "width:100%" })</td>
+            </tr>
+            @if(userReceiptList.Count > 0)
+            {
+                <tr>
+                    <td class="td-right">历史收件地址：</td>
+                    <td>
+                        @Html.DropDownList("Receipt.ID", userReceiptList, "可以选择以下历史收件地址", new { style = "width:100%" })
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="td-right">电话：</td>
+                <td>@Html.TextBox("Receipt.Phone", user.Phone, new { style = "width:200px" })</td>
+            </tr>
+            <tr>
+                <td class="td-right">邮箱：</td>
+                <td>@Html.TextBox("Receipt.Email", user.Email, new { style = "width:200px" })</td>
+            </tr>
+        </table>
+        <div class="clear"></div>
+
+        <div style="text-align: right;">
+            <input type="submit" value="确定无误" class="order-submit" />
+        </div>
+    }
+}
+else
+{
+    <h1>木有订单信息哦~</h1>
+}

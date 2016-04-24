@@ -1,0 +1,28 @@
+﻿@{
+    Layout = ViewBag.UseLayout ? ViewBag.Layout as string : null;
+}
+@model Justin.BookShop.Entities.PriceAdjustReceipt
+
+@if (Model != null)
+{
+    <table class="receipt">
+        <tr><td colspan="7" class="rtitle">XXX图书商城调价单</td></tr>
+        <tr>
+            <td colspan="7" style="text-align:right; padding-right:100px;">流水号：@Model.NO</td>
+        </tr>
+        <tr class="rhead"><td>序号</td><td>ISBN</td><td>图书名称</td><td>调价数量</td><td>新核算价</td><td>旧核算价</td><td>差额</td></tr>
+        @{
+            int sort = 1;
+            foreach (var d in Model.Details.OrderBy(d => d.Sort))
+            {
+                <tr class="rdetail"><td>@(sort++)</td><td>@d.Book.ISBN</td><td>@d.Book.Name</td><td>@(d.Book.Stock == null ? 0 : d.Book.Stock.ThisPeriodQuantity)</td>
+                    <td>￥：@d.NewAccountPrice</td><td>￥：@d.Book.AccountPrice.GetValueOrDefault()</td>
+                    <td>￥：@((d.NewAccountPrice - d.Book.AccountPrice.GetValueOrDefault()) * (decimal)(d.Book.Stock == null ? 0 : d.Book.Stock.ThisPeriodQuantity))</td></tr>
+            }
+        }
+        <tr class="rfooter"><td colspan="7"></td></tr>
+        <tr><td class="rtdright rtdbolid">备注：</td><td colspan="6" class="runderline">@Model.Remark</td></tr>
+        <tr><td class="rtdright rtdbolid">提交人员：</td><td class="runderline">@Model.SubmittedBy.Name</td><td class="rtdright rtdbolid">审核人员：</td><td class="runderline">@(Model.AuditedBy == null ? "" : Model.AuditedBy.Name)</td>
+            <td class="rtdright rtdbolid">时间：</td><td class="runderline">@(Model.AuditDate == null ? Model.SubmitDate.ToString("yyyy年MM月dd日") : Model.AuditDate.GetValueOrDefault().ToString("yyyy年MM月dd日"))</td></tr>
+    </table>
+}

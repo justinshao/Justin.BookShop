@@ -1,0 +1,54 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <style type="text/css">
+        .header .mini-button-iconTop .mini-button-icon {
+            padding-top:30px;
+        }
+    </style>
+
+    <div class="mini-layout" style="width: 100%; height: 100%;">
+        <div class="header" region="north" height="90" showsplit="false" showheader="false">
+            @Html.Action("Header")
+        </div>
+        <div region="south" showsplit="false" showheader="false" height="30">
+            <div style="line-height: 28px; text-align: center; cursor: default">Copyright © 上海普加软件有限公司版权所有 </div>
+        </div>
+        <div region="west" title="菜单" iconcls="icon-menu" showspliticon="true" width="180" height="100%" minwidth="100">
+            @Html.Action("Menu")
+        </div>
+        <div title="center" region="center" bodystyle="overflow:hidden;">
+            <div id="mainTabs" class="mini-tabs" style="width: 100%; height: 100%;"
+                plain="false">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        function showTab(node) {
+            var tabs = mini.get("mainTabs");
+            var id = "tab$" + node.ID;
+            var tab = tabs.getTab(id);
+            if (!tab) {
+                tab = {};
+                tab.name = id;
+                tab.title = node.Text;
+                tab.showCloseButton = true;
+                tab.url = node.Url;
+                tab.iconCls = node.Icon;
+                tabs.addTab(tab);
+            }
+            tabs.activeTab(tab);
+        }
+
+        function onNodeSelect(e) {
+            var node = e.node;
+            var isLeaf = e.isLeaf;
+
+            if (isLeaf) {
+                showTab(node);
+            }
+        }
+    </script>

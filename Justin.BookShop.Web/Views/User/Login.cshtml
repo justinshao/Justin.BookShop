@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "会员登录";
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+@model Justin.BookShop.Controllers.Models.UserLoginInfo
+@Styles.Render("~/Content/themes/login/css");
+
+<div class="form-login">
+    <h3>会员登录</h3>
+    @using (Html.BeginForm("Login", "User", FormMethod.Post, new { @class = "mt-20" }))
+    {
+        <div class="form-item">
+            @Html.TextBoxFor(m => m.UserName, new { id = "username", placeholder = "Username" })
+        </div>
+        <div class="form-item">
+            @Html.PasswordFor(m => m.Password, new { id = "pwd", placeholder = "Password" })
+        </div>
+        <div class="form-item info-list">
+            @Html.CheckBoxFor(m => m.Remember)
+            <label for="Remember">记住我</label>
+        </div>
+        <div class="form-item">
+            <button type="submit">登陆</button>
+            @Html.LabelFor(m => m.LoginError, (Model == null || Model.LoginError == null) ? "" : Model.LoginError,
+                    new { @class = (Model == null || string.IsNullOrEmpty(Model.LoginError)) ? "errorhidden" : "error" })
+        </div>
+        }
+</div>

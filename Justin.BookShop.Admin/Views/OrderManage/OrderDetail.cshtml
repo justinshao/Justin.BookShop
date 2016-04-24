@@ -1,0 +1,36 @@
+﻿@{
+    Layout = null;
+}
+@model Justin.BookShop.Entities.Order
+
+<link href="~/Content/themes/receipt.css" rel="stylesheet" />
+
+@if (Model != null)
+{
+    <table class="receipt">
+        <tr><td colspan="6" class="rtitle">XXX图书商城购物订单</td></tr>
+        <tr>
+            <td class="rtdright">订单号：</td><td class="runderline">@Model.NO</td>
+            <td class="rtdright">运费：</td><td class="runderline">￥@Model.Freight</td>
+            <td class="rtdright">订单总额：</td><td class="runderline">￥@Model.OrderPrice</td>
+        </tr>
+        <tr class="rhead"><td>序号</td><td>ISBN</td><td>图书名称</td><td>数量</td><td>单价</td><td>总额</td></tr>
+        @{
+            int sort = 1;
+            decimal item_total = 0;
+            foreach (var item in Model.OrderItems)
+            {
+                decimal total = item.UnitPrice * (decimal)item.Quantity;
+                item_total += total;
+                <tr class="rdetail"><td>@(sort++)</td><td>@item.Book.ISBN</td><td>@item.Book.Name</td><td>@item.Quantity</td><td>￥：@item.UnitPrice</td><td>￥：@total</td></tr>
+            }
+        }
+        <tr class="rfooter"><td colspan="6" style="text-align:right">明细总额：￥@item_total</td></tr>
+        <tr><td class="rtdright rtdbolid">收件人：</td><td class="runderline">@Model.Receipt.ReceiptName</td>
+            <td class="rtdright rtdbolid">联系电话：</td><td class="runderline">@Model.Receipt.Phone</td>
+        </tr>
+        <tr><td class="rtdright rtdbolid">收件地址：</td><td class="runderline" colspan="3">@Model.Receipt.Address</td></tr>
+    </table>
+}
+
+

@@ -1,0 +1,30 @@
+﻿
+table{border-collapse:collapse;}
+.order-table{width:100%;}
+.order-table td{padding:5px;}
+.order-table th{padding:5px;background:#0066cc;color:white;text-align:left;}
+.order-table td.row-total{text-align:right;}
+.order-table td input{width:75px;text-align:center;}
+.order-table tr.even td{background:#eee;}
+
+.order-table td .total-box,.total-box{border:3px solid #95999c;width:70px;padding:3px;margin:5px 0 5px 0;text-align:center;font-size:14px;}
+#order-total{font-weight:bold;font-size:21px;width:110px;}
+
+
+
+.cart-submit, .order-submit {
+    width: 100px;
+    background: #00aec7;
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 1px;
+    cursor: pointer;
+    padding: 10px 5px;
+    margin: 10px 5px;
+}
+
+.td-right {
+    text-align: right; 
+    width:15%
+}

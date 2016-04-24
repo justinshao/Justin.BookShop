@@ -1,0 +1,72 @@
+﻿
+@{
+    var loginUser = System.Web.HttpContext.Current.Session["user"] as Justin.BookShop.Entities.User;
+}
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <script src="~/Scripts/jquery-1.7.1.js"></script>
+    <link href="~/Content/themes/header.css" rel="stylesheet" />
+    <link href="~/Content/themes/layout.css" rel="stylesheet" />
+    <title>@ViewBag.Title</title>
+</head>
+
+<body id="page1">
+  <div id="main">
+    <!-- header -->
+    <div id="header">
+      <!-- .address -->
+      <div class="address">
+          @if(loginUser == null)
+          {
+            @Html.ActionLink("登录", "Login", "User")
+              <span class="long-string">|</span>
+            @Html.ActionLink("注册", "Register", "User")
+          }else
+          {
+              @Html.ActionLink("您好，" + loginUser.LoginName, "Info", "User", new { userId = (loginUser == null ? null : (object)loginUser.ID) }, null)
+              <span class="long-string">|</span>
+              @Html.ActionLink("注销", "Logout", "User")
+          }
+          <span class="long-string">|</span>
+      	@Html.ActionLink("我的订单", "List", "Order", new { userId = (loginUser == null ? null : (object)loginUser.ID) }, null)
+          <span class="long-string">|</span>
+        @Html.ActionLink("我的购物车", "List", "Cart", new { userId = (loginUser == null ? null : (object)loginUser.ID) }, null)
+      </div>
+      <!-- .logo -->
+      <div class="logo">
+      	<h1><a href='@Url.Action("CategoryList", "Book")'>Justin<br /> Online BookShop</a></h1>
+        <span>Welcom!</span>
+      </div>
+      <!-- /search-form -->
+      @using (Html.BeginForm("SearchList", "Book", FormMethod.Post, new { id = "search-form" }))
+      {
+          <fieldset>
+              @Html.TextBox("key",null, new {@class="text"})
+              <input type="submit" value="Search" class="submit" />
+          </fieldset>
+      }
+    </div>
+    <!-- content -->
+    @RenderBody()
+    <!-- footer -->
+    <div id="footer">
+    	<div class="wrapper">
+        <div class="fright">
+        	<!-- .nav -->
+        	<ul class="nav">
+          	<li>@Html.ActionLink("Home", "Index", "Home", null, new { @class="current"})|</li>
+            <li>@Html.ActionLink("About", "Index", "Home")|</li>
+            <li>@Html.ActionLink("Services", "Index", "Home")|</li>
+            <li>@Html.ActionLink("Solutions", "Index", "Home")|</li>
+            <li>@Html.ActionLink("Contacts", "Index", "Home")</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

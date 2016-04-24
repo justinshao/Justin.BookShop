@@ -1,0 +1,17 @@
+﻿body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }
+
+.book-big {
+    width:160px;
+    height:160px;
+}
+.book-small {
+    width:60px;
+    height:60px;
+}
+.toolbar-footer {
+    text-align:right;
+    padding:5px;
+    padding-right:15px;
+}

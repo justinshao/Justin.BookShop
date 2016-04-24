@@ -1,0 +1,71 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mini-toolbar" width="100%">
+    <table style="width: 100%;">
+        <tr>
+            <td style="white-space: nowrap;">
+                <input id="key" class="mini-textbox" emptytext="请输入关键词" style="width: 150px;" onenter="search()" />
+                <a class="mini-button" iconcls="icon-search" onclick="search()">查询</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="roles" class="mini-datagrid" style="width:500px;height:250px;"  allowResize="true" showPager="false"
+        url="@Url.Action("RoleList", "RolePerms")"  idField="ID" allowCellEdit="true" allowCellSelect="true">
+    <div property="columns">
+        <div field="Permissions" width="300" hideable="true" headeralign="center">
+            所属权限
+            <input id="beRoles" property="editor" class="mini-buttonedit" emptytext="暂无权限..."
+                 onbuttonclick="onButtonEditClick" selectonfocus="true" allowInput="false" />
+        </div>  
+        <div field="Name" width="80" headeralign="center">角色名</div>
+        <div field="Description" width="200" headeralign="center">描述</div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var grid = null;
+
+    $(function () {
+        mini.parse();
+
+        grid = mini.get("roles");
+        grid.load();
+    });
+
+    function search() {
+        var key = mini.get("key").getValue();
+        grid.load({ key: "name-" + key });
+    }
+
+    function onButtonEditClick(e) {
+        var btnEdit = this;
+        var roleId = grid.getSelected().ID;
+
+        mini.open({
+            url: "/Admin/RolePerms/SelectForm?roleID=" + roleId,
+            title: "权限选择框",
+            width: 500,
+            height: 350,
+            ondestroy: function (action) {
+
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+
+                    var perms = iframe.contentWindow.GetData();
+                    perms = mini.clone(perms);
+                    var names = [];
+                    for (var i = 0; i < perms.length; i++) {
+                        names.push(perms[i].Name);
+                    }
+                    btnEdit.setText(names.join("，"));
+                    btnEdit.setValue(names.join("，"));
+                    grid.commitEdit();
+                }
+            }
+        });
+    }
+</script>   

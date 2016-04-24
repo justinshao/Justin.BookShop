@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{14FC1C80-7EE2-42B3-A857-8BEA54C4214A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Justin.BookShop.Registration</RootNamespace>
+    <AssemblyName>Justin.BookShop.Registration</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.2\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegistrarTypeFinder.cs" />
+    <Compile Include="RepositoryRegistrar.cs" />
+    <Compile Include="ServiceRegistrar.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Justin.BookShop.Common\Justin.BookShop.Common.csproj">
+      <Project>{cce3e8f3-236a-4bc0-865e-452eadc0b7bd}</Project>
+      <Name>Justin.BookShop.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.EfMsSqlRepository\Justin.BookShop.EfMsSqlRepository.csproj">
+      <Project>{d1bd1644-dd82-4238-9017-40c56c93911d}</Project>
+      <Name>Justin.BookShop.EfMsSqlRepository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.Entities\Justin.BookShop.Entities.csproj">
+      <Project>{327d74b7-c1ac-4f0c-bea5-4c072cd91056}</Project>
+      <Name>Justin.BookShop.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.IRepository\Justin.BookShop.IRepository.csproj">
+      <Project>{1e47cd07-15d2-4cde-a80b-4c8398ae9529}</Project>
+      <Name>Justin.BookShop.IRepository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.IService\Justin.BookShop.IService.csproj">
+      <Project>{9c985716-a058-4d44-97b0-4d068babfde6}</Project>
+      <Name>Justin.BookShop.IService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.Services\Justin.BookShop.Service.csproj">
+      <Project>{7bec5669-c26b-4eac-a23a-1f7ed50d51d7}</Project>
+      <Name>Justin.BookShop.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

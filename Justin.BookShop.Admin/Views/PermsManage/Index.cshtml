@@ -1,0 +1,283 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--toolbar-->
+<div class="mini-toolbar">
+    <a class="mini-button" iconCls="icon-add" onclick="addAfter">新增</a>
+    <a class="mini-button" iconCls="icon-edit" onclick="edit">编辑</a>
+    <a class="mini-button" iconCls="icon-remove" onclick="removeNode">删除</a>
+    <span class="separator"></span>
+    <a class="mini-button" iconCls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+</div>
+<!--permissionTree-->
+<div id="permissionTree" class="mini-treegrid" width="100%" height="90%" showtreeicon="true"
+    url="@Url.Action("List", "PermsManage")" treecolumn="colName" idfield="ID" parentfield="ParentID" resultastree="false"
+    allowresize="true" expandonload="0" contextmenu="#treeMenu" ondrawcell="drawCell">
+    <div property="columns">
+        <div type="indexcolumn"></div>
+        <div name="colName" field="Name" width="120">名称</div>
+        <div field="Icon" width="80">图标</div>
+        <div field="Controller" width="120">Controoler(控制器)</div>
+        <div field="Action" width="80">Action</div>
+        <div field="AlternateLink" width="150">备用链接</div>
+        <div field="TypeID" width="80">类型</div>
+        <div field="Description" width="160">描述</div>
+    </div>
+</div>
+<!--editForm-->
+<div id="editWindow" class="mini-window" title="权限编辑框" style="width:650px;" 
+    showModal="true" allowResize="true" allowDrag="true" showMaxButton="true"
+    >
+    <div id="editForm" class="form" >
+        <table style="width:100%;">
+            <tr>
+                <input class="mini-hidden" name="state" />
+                <input class="mini-hidden" name="ID" />
+                <input class="mini-hidden" name="ParentID" />
+                <input class="mini-hidden" name="Sort" />
+                <td style="width:120px;">名称：</td>
+                <td style="width:150px;"><input name="Name" class="mini-textbox" style="width: 100%;" required="true" /></td>
+                <td style="width:80px;">图标：</td>
+                <td style="width:150px;">
+                    <input id="comboController" name="Icon" onDrawCell="drawIconCell" class="mini-combobox" url="@Url.Action("SysIcons", "PermsManage")" 
+                        valueField="iconCls" textField="iconCls" style="width: 100%;" showNullItem="true" /></td>
+                <td style="width:80px;">Controller：</td>
+                <td style="width:150px;">
+                    <input name="Controller" class="mini-combobox" onvaluechanged="controllerChange" 
+                        url="@Url.Action("Controllers", "PermsManage")" valueField="Controller" textField="Controller" 
+                        style="width: 100%;" showNullItem="true" /></td>
+            </tr>
+            <tr>
+                <td>Action：</td>
+                <td><input id="comboAction" name="Action" class="mini-combobox" valueField="Action" textField="Action" 
+                    style="width: 100%;" showNullItem="true" /></td>
+                <td>备用链接：</td>
+                <td><input name="AlternateLink" class="mini-textbox" style="width: 100%;" /></td>
+                <td>类型：</td>
+                <td><input id="comboType" name="TypeID" class="mini-combobox" data="typeData" valueField="TypeID" textField="TypeName" style="width: 100%;" required="true" /></td>
+            </tr>
+            <tr>
+                <td>描述：</td>
+                <td colspan="5"><input name="Description" class="mini-textarea" style="width: 100%;" /></td>
+            </tr>
+            <tr>
+                <td style="text-align:right;padding-top:5px;padding-right:20px;" colspan="6">
+                    <a class="mini-button" iconCls="icon-ok" onclick="doRemoteUpdate">确定</a> 
+                    <a class="mini-button" iconCls="icon-cancel" onclick="cancelEdit">取消</a>
+                </td>                
+            </tr>
+        </table>
+    </div>
+</div>
+<!--treeMenu-->
+<ul id="treeMenu" class="mini-contextmenu" onbeforeopen="beforeOpen">
+    <li class="separator"></li>
+    <li>
+        <span iconcls="icon-add">新增</span>
+        <ul>
+            <li onclick="addBefore">在该项前新增</li>
+            <li onclick="addAfter">在该项后新增</li>
+            <li onclick="addChild">新增子</li>
+        </ul>
+    </li>
+    <li name="edit" iconcls="icon-edit" onclick="edit">编辑</li>
+    <li name="remove" iconcls="icon-remove" onclick="removeNode">删除</li>
+</ul>
+
+<script type="text/javascript">
+    var tree = null;
+    var menu = null;
+    var editWindow = null;
+    var editForm = null;
+    var comboController = null;
+    var comboAction = null;
+    var comboType = null;
+    var typeData = [{ TypeID: 0, TypeName: '菜单' }, { TypeID: 1, TypeName:'通用' }];
+
+    $(function () {
+        mini.parse();
+        tree = mini.get("#permissionTree");
+        menu = mini.get("#treeMenu");
+        editWindow = mini.get("#editWindow");
+        editForm = new mini.Form("#editForm");
+        comboController = mini.get("#comboController");
+        comboAction = mini.get("#comboAction");
+        comboType = mini.get("#comboType");
+    });
+
+    function addAfter() {
+        add("after");
+    }
+    function addBefore() {
+        add("before");
+    }
+    function addChild() {
+        add("add");
+    }
+    function add(effect) {
+        var node = tree.getSelectedNode();
+        var parent = (effect == "after" || effect == "before") ? tree.getParentNode(node) : node;
+        var pid = (parent && parent.ID) ? parent.ID : -1;
+        var sort;
+        switch (effect) {
+            case "after":{
+                sort = (node ? node.Sort + 1 : 1);
+                break;
+            }
+            case "before":{
+                sort = (node ? node.Sort - 1 : 1);
+                break;
+            }
+            case "add":{
+                sort = (!node || tree.isLeaf(node)) ? 1 : tree.getChildNodes(node)[tree.getChildNodes(node).length - 1].Sort + 2
+            }
+        }
+        var newNode = { ID: -1, ParentID: pid, Sort: sort, state: "add", effect: effect };
+
+        editWindow.show();
+        editForm.clear();
+        editForm.setData(newNode);
+    }
+    function edit() {
+        var node = tree.getSelectedNode();
+        if (!node)
+            return;
+        node.state = "update";
+        targetNode = node;
+        editWindow.show();
+        editForm.clear();
+        editForm.setData(node);
+    }
+    function doRemoteUpdate() {
+        editForm.validate();
+        if (editForm.isValid()) {
+            var data = editForm.getData();
+            var effect = data.effect;
+            var permission = {
+                ID: data.ID, ParentID: data.ParentID, Name: data.Name, Icon: data.Icon,
+                ControllerName: data.Controller, ActionName: data.Action, AlternateLink: data.AlternateLink,
+                TypeID: data.TypeID, Description: data.Description, Sort:data.Sort
+            };
+
+            var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+            $.ajax({
+                type: "post",
+                url: data.state == "add" ? "/Admin/PermsManage/Add" : "/Admin/PermsManage/Update",
+                data: JSON.stringify(permission),
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    mini.hideMessageBox(messageid);
+                    var returnData = data;
+                    if (returnData.Success) {
+                        refreshData();
+                        showTip("数据保存成功！", "success");
+                        editWindow.hide();
+                    } else {
+                        mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mini.hideMessageBox(messageid);
+                    mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus, "错误消息");
+                }
+            });
+        }
+    }
+
+    function removeNode() {
+        var node = tree.getSelectedNode();
+        var allow = tree.isLeaf(node);
+        var parent = tree.getParentNode(node);
+
+        if (node && allow) {
+            mini.confirm("确定删除?", "确定？",
+            function (action) {
+                if (action == "ok") {
+                    ////////////////////////////////////
+                    // 在这里做远程处理（删除）
+                    var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+                    $.ajax({
+                        type: "post",
+                        url: "/Admin/PermsManage/Remove",
+                        data: { id: node.ID },
+                        dataType: "json",
+                        success: function (data) {
+                            mini.hideMessageBox(messageid);
+                            var returnData = data;
+                            if (returnData.Success) {
+                                showTip("数据保存成功！", "success");
+                                tree.removeNode(node);
+                            } else {
+                                mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            mini.hideMessageBox(messageid);
+                            mini.alert("<b>出现错误！</b><br/>" +
+                                "错误信息：" + errorThrown, +
+                                "<br/>状态码：" + textStatus, "错误消息");
+                        }
+                    });
+                }
+            }
+        );
+        }
+    }
+
+    function controllerChange(e) {
+        comboAction.load("/admin/PermsManage/Actions?controllerName=" + e.value);
+    }
+    function drawIconCell(e) {
+        e.cellHtml = "<table><tr><td class='" + e.record.iconCls + "' style='width:16px; height:16px'></td><td>" + e.record.iconCls + "</td></tr></table>";
+    }
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Center",
+            timeout: 2000
+        });
+    }
+    function drawCell(e) {
+        switch (e.field) {
+            case "Icon": {
+                if (!e.record.iconCls)
+                    e.cellHtml = "";
+                else
+                    e.cellHtml = "<table><tr><td class='" + e.record.iconCls + "' style='width:16px; height:16px'></td><td>" + e.record.iconCls + "</td></tr></table>";
+                break;
+            }
+            case "TypeID": {
+                e.cellHtml = typeData[e.value].TypeName;
+                break;
+            }
+        }
+    }
+    function beforeOpen(e) {
+        var menu = e.sender;
+        var node = tree.getSelectedNode();
+        if (!node) {
+            e.cancel = true;
+            return;
+        }
+
+        // 不允许删除有子节点的节点
+        var removeItem = mini.getbyName("remove", menu);
+        removeItem.show();
+        if (!tree.isLeaf(node)) {
+            removeItem.hide();
+        }
+    }
+    function refreshData() {
+        tree.reload();
+    }
+    function cancelEdit() {
+        editForm.clear();
+        editWindow.hide();
+    }
+</script>

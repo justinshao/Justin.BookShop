@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9C985716-A058-4D44-97B0-4D068BABFDE6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Justin.BookShop.IService</RootNamespace>
+    <AssemblyName>Justin.BookShop.IService</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseService.cs" />
+    <Compile Include="IAuthorService.cs" />
+    <Compile Include="IBookCategoryService.cs" />
+    <Compile Include="IBookService.cs" />
+    <Compile Include="IBookStockService.cs" />
+    <Compile Include="ICartService.cs" />
+    <Compile Include="IDepartmentService.cs" />
+    <Compile Include="IInStockReceiptService.cs" />
+    <Compile Include="IOrderService.cs" />
+    <Compile Include="IOutStockReceiptService.cs" />
+    <Compile Include="IPermissionService.cs" />
+    <Compile Include="IPressService.cs" />
+    <Compile Include="IPriceAdjustReceiptService.cs" />
+    <Compile Include="ISaleService.cs" />
+    <Compile Include="IStockDamagedReceiptService.cs" />
+    <Compile Include="IStocktakeReceiptService.cs" />
+    <Compile Include="IUserRoleService.cs" />
+    <Compile Include="IService.cs" />
+    <Compile Include="IUserService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Justin.BookShop.Common\Justin.BookShop.Common.csproj">
+      <Project>{cce3e8f3-236a-4bc0-865e-452eadc0b7bd}</Project>
+      <Name>Justin.BookShop.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.Entities\Justin.BookShop.Entities.csproj">
+      <Project>{327d74b7-c1ac-4f0c-bea5-4c072cd91056}</Project>
+      <Name>Justin.BookShop.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Justin.BookShop.IRepository\Justin.BookShop.IRepository.csproj">
+      <Project>{1e47cd07-15d2-4cde-a80b-4c8398ae9529}</Project>
+      <Name>Justin.BookShop.IRepository</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

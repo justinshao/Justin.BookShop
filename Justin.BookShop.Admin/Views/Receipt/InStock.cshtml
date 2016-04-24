@@ -1,0 +1,32 @@
+﻿@{
+    Layout = ViewBag.UseLayout ? ViewBag.Layout as string : null;
+}
+@model Justin.BookShop.Entities.InStockReceipt
+
+@if (Model != null)
+{
+    <table class="receipt">
+        <tr><td colspan="6" class="rtitle">XXX图书商城入库单</td></tr>
+        <tr>
+            <td class="rtdright">流水号：</td><td class="runderline">@Model.NO</td>
+            <td class="rtdright">出版社流水号：</td><td class="runderline">@Model.PressNo</td>
+            <td colspan="2" class="rinvalid rtdright">
+                @(Model.InvalidReceipt == null ? "" : "作废单据流水号：" + Model.InvalidReceipt.NO)
+                @(Model.BeforeVoidReceipt == null ? "" : "原作废单据流水号：" + Model.BeforeVoidReceipt.NO)
+            </td>
+        </tr>
+        <tr><td class="rtdright">出版社：</td><td class="runderline">@Model.Press.Name</td></tr>
+        <tr class="rhead"><td>序号</td><td>ISBN</td><td>图书名称</td><td>入库数量</td><td>入库价</td><td>核算价</td></tr>
+        @{
+            int sort = 1;
+            foreach (var d in Model.Details.OrderBy(d => d.Sort))
+            {
+                <tr class="rdetail"><td>@(sort++)</td><td>@d.Book.ISBN</td><td>@d.Book.Name</td><td>@d.EntryQuantity</td><td>￥：@d.EntryUnitPrice</td><td>￥：@d.Book.AccountPrice.GetValueOrDefault()</td></tr>
+            }
+        }
+        <tr class="rfooter"><td colspan="6"></td></tr>
+        <tr><td class="rtdright rtdbolid">备注：</td><td colspan="4" class="runderline">@Model.Remark</td></tr>
+        <tr><td class="rtdright rtdbolid">提交人员：</td><td class="runderline">@Model.SubmittedBy.Name</td><td class="rtdright rtdbolid">审核人员：</td><td class="runderline">@(Model.AuditedBy == null ? "" : Model.AuditedBy.Name)</td>
+            <td class="rtdright rtdbolid">时间：</td><td class="runderline">@(Model.AuditDate == null ? Model.SubmitDate.ToString("yyyy年MM月dd日") : Model.AuditDate.GetValueOrDefault().ToString("yyyy年MM月dd日"))</td></tr>
+    </table>
+}

@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "SubmitOrderResult";
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+
+@model Justin.BookShop.Controllers.Models.SubmitOrderResult
+<link href="~/Content/themes/cart.css" rel="stylesheet" />
+<div class="m" id="succeed">
+    <div class="success">
+        <div class="success-b">
+            <h3>@Model.Message</h3>
+        </div>
+        <span id="initCart_next_go">
+            @Html.ActionLink("继续购物", "CategoryList", "Book", null, new { id = "GotoShoppingCart", @class = "btn-continue" })
+        </span>
+    </div>
+</div>

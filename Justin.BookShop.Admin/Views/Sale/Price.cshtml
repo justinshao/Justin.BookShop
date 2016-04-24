@@ -1,0 +1,68 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="mini-splitter" style="width: 100%; height: 100%;">
+    <div showcollapsebutton="true" size="80">
+        <!--books-->
+        <div id="books" class="mini-datagrid" width="100%" height="100%" url="@Url.Action("List", "Book")" 
+            allowRowSelect="true" allowResize="true" showFilterRow="true">
+            <div property="columns">
+                <div field="ISBN" width="100">ISBN
+                    <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'isbn')" style="width: 100%;" />
+                </div>
+                <div field="Name" width="120" headeralign="center" allowsort="true">书名
+                    <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'name')" style="width: 100%;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div size="240">
+        <div class="mini-toolbar">
+            <a class="mini-button" iconcls="icon-save" plain="true" onclick="saveChange">保存</a>
+        </div>
+        定价：<input id="OfficialPrice" class="mini-spinner"  minValue="0" maxValue="100000" decimalPlaces="2" onended="false"/><br />
+        核算价：<input id="AccountPrice" class="mini-spinner"  minValue="0" maxValue="10000" decimalPlaces="2" onended="false"/><br />
+        售价：<input id="SellingPrice" class="mini-spinner"  minValue="0" maxValue="10000" decimalPlaces="2"/><br />
+        折扣：<input id="off" valuechanged="offChanged" class="mini-spinner"  minValue="0" maxValue="10" decimalPlaces="2"/><br />
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var grid = null;
+    var OfficialPrice = null;
+    var SellingPrice = null;
+    var AccountPrice = null;
+
+    $(function () {
+        mini.parse();
+
+        grid = mini.get("books");
+        OfficialPrice = mini.get("OfficialPrice");
+        SellingPrice = mini.get("SellingPrice");
+        AccountPrice = mini.get("AccountPrice");
+
+        var db = new mini.DataBinding();
+        db.bindField(OfficialPrice, grid, "OfficialPrice");
+        db.bindField(SellingPrice, grid, "SellingPrice");
+        db.bindField(AccountPrice, grid, "AccountPrice");
+
+        grid.load();
+    });
+
+    function onFilterChanged(e, field) {
+        var key = e.getValue();
+        grid.load({ key: field + "-" + key });
+    }
+
+    function offChanged(e) {
+
+    }
+
+    function selectionchanged() {
+        grid.reject();
+    }
+
+    function saveChange() {
+    }
+</script>

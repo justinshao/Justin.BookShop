@@ -1,0 +1,180 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/themes/receipt.css" rel="stylesheet" />
+
+<div class="mini-splitter" style="width: 100%; height: 100%;">
+    <div showcollapsebutton="true" size="40">
+        <div id="receiptList" class="mini-datagrid" width="100%" height="100%" showPager="false" 
+            onselectionchanged="selectionchanged" idField="ID" url="/admin/receipt/list?type=@ViewBag.Type">
+            <div property="columns">
+                <div field="NO" headeralign="center">流水号</div>
+            </div>
+        </div>
+    </div>
+    <div size="240">
+        <div class="mini-toolbar">
+            <a class="mini-button" iconcls="icon-add" onclick="addReceipt">新增</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconcls="icon-remove" onclick="removeReceipt">删除</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconcls="icon-edit" onclick="editReceipt">修改</a>
+        </div>
+        <div id="receiptBody" class="mini-fit">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var selectedID = null;
+    var receiptList = null;
+    var listData = mini.decode('@(MvcHtmlString.Create(ViewBag.ReceiptList as string))');
+    var receiptType = @(ViewBag.Type + ";")
+
+    $(function () {
+        mini.parse();
+
+        receiptList = mini.get("receiptList");
+        receiptList.setData(listData);
+        if ((receiptList.getData().length > 0))
+            receiptList.select(receiptList.getRow(0), true);
+    });
+
+    function getTitle(){
+        var title;
+        switch (receiptType) {
+            case 1:
+                title = "入库单";
+                break;
+            case 2:
+                title = "出库单";
+                break;
+            case 3:
+                title = "盘库单";
+                break;
+            case 4:
+                title = "报损单";
+                break;
+            case 5:
+                title = "调价单";
+                break;
+        }
+        return title;
+    }
+
+    function addReceipt() {
+        var title = getTitle() + "新增";
+        openEditor(-1, title, "icon-add");
+    }
+
+    function editReceipt() {
+        var row = receiptList.getSelected();
+        if(row){
+            var title = getTitle() + "修改";
+            openEditor(row.ID, title, "icon-edit");
+        }
+    }
+
+    function openEditor(id, title, iconCls) {
+        mini.open({
+            url: "/Admin/Receipt/ReceiptEdit?type=" + receiptType + "&id=" + id,        //页面地址
+            title: title,
+            iconCls: iconCls,
+            width: 800,
+            height: 400,
+            allowResize: false,
+            allowDrag: true,
+            showCloseButton: true,
+            showMaxButton: false,
+            showModal: true,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    showTip("保存成功！", "success");
+                    receiptList.reload();
+                    focusRow();
+                }
+            }
+        });
+    }
+
+    function focusRow() {
+        var row = receiptList.findRow(function (row) {
+            if (row.ID == selectedID) return true;
+        });
+        if (row) {
+            receiptList.select(row, true);
+        } else if (receiptList.getData().length > 0) {
+            receiptList.select(receiptList.getRow(0), true);
+        } else {
+            $("#receiptBody").html("");
+        }
+    }
+
+    function selectionchanged(e) {
+        if (e.selected) {
+            selectedID = e.selected.ID;
+            $.ajax({
+                url: "/Admin/Receipt/SubmittedReceipt?type=" + receiptType + "&id=" + e.selected.ID,
+                dataType: "html",
+                success: function (html) {
+                    $("#receiptBody").html(html);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                            "错误信息：" + errorThrown, +
+                            "<br/>状态码：" + textStatus);
+                }
+            });
+        }
+    }
+
+    function removeReceipt() {
+        var row = receiptList.getSelected();
+        if (!row)
+            return;
+
+        mini.confirm("确定删除?", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        ////////////////////////////////////
+                        // 在这里做远程处理（删除）
+                        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+                        $.ajax({
+                            url: "/Admin/Receipt/DeleteReceipt",
+                            type: "post",
+                            data: { type: receiptType, id: row.ID },
+                            success: function (data) {
+                                mini.hideMessageBox(messageid);
+                                if (data.Success) {
+                                    showTip("保存成功！", "success");
+                                    receiptList.removeRow(row, false);
+                                    receiptList.reload();
+                                    focusRow();
+                                } else {
+                                    mini.alert("<b>删除失败！</b><br/>" +
+                                    "错误信息：" + data.ErrorMessage);
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                mini.hideMessageBox(messageid);
+                                mini.alert("<b>出现错误！</b><br/>" +
+                                    "错误信息：" + errorThrown, +
+                                    "<br/>状态码：" + textStatus);
+                            }
+                        });
+                    }
+                }
+            );
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Center",
+            timeout: 2000
+        });
+    }
+</script>

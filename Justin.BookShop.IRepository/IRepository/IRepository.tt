@@ -1,0 +1,36 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)libarary\Justin.BookShop.Entities.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Justin.BookShop.Entities.Util" #>
+<#@ output extension=".cs" #>
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Collections.Generic;
+using Justin.BookShop.Entities;
+
+<#var modelTypes = EntityTypeUtil.FindEntityTypes();#>
+namespace Justin.BookShop.IRepository
+{
+    public interface IRepository<TEntity> where TEntity : class
+    {
+        IEnumerable<TEntity> All { get; }
+        TEntity GetSingle(Expression<Func<TEntity, bool>> filter);
+        IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter);
+        TEntity Add(TEntity entity, bool saveChanges = true);
+        TEntity Update(TEntity entity, bool saveChanges = true);
+        void Delete(TEntity entity, bool saveChanges = true);
+    }
+
+<#
+foreach(Type t in modelTypes)
+{ 
+#>
+    public partial interface I<#=t.Name #>Repository : IRepository<<#=t.Name #>> { }
+<#
+}
+#>
+}

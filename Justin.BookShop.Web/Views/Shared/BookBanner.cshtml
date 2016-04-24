@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Justin.BookShop.Entities.Book>
+@using Justin.BookShop.Controllers.Client;
+
+<link href="~/Content/themes/imgswitch.css" rel="stylesheet" />
+<script src="~/Scripts/jquery.jcarousel.min.js"></script>
+<script src="~/Scripts/imgswitch.js"></script>
+
+<div class="connected-carousels">
+    <div class="stage">
+        <div class="carousel carousel-stage">
+            <ul>
+                @foreach (var b in Model)
+                {
+                    <li><img src="@(WebConfig.BookImageFileServer + b.Picture)" width="350" height="350" title="@(b.Name)"/></li>
+                }
+            </ul>
+        </div>
+        <a href="#" class="prev prev-stage"><span>&lsaquo;</span></a>
+        <a href="#" class="next next-stage"><span>&rsaquo;</span></a>
+    </div>
+
+    <div class="navigation">
+        <a href="#" class="prev prev-navigation">&lsaquo;</a>
+        <a href="#" class="next next-navigation">&rsaquo;</a>
+        <div class="carousel carousel-navigation">
+            <ul>
+                @foreach (var b in Model)
+	            {
+                    <li><img src="@(WebConfig.BookImageFileServer + b.Thumbnail)" width="50" height="50" title="@(b.Name)"/></li>
+	            }
+            </ul>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,118 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderstyle="border:0;">
+    <label>名称：</label>
+    <input id="key" class="mini-textbox" style="width: 150px;" onenter="onKeyEnter" />
+    <a class="mini-button" style="width: 60px;" onclick="search()">查询</a>
+</div>
+
+<div class="mini-fit">
+    <div id="grid" class="mini-datagrid" style="width: 100%; height: 100%;"
+        idfield="ID" allowresize="true" url="@Url.Action("List", "RoleManage")" onload="selectRows"
+        borderstyle="border-left:0;border-right:0;" onrowdblclick="onRowDblClick" multiSelect="true">
+        <div property="columns">
+            <div type="checkcolumn"></div>
+            <div field="Name" width="80" headeralign="center" allowsort="true">名称</div>
+            <div field="Description" width="100%" headeralign="center" dateformat="yyyy-MM-dd" allowsort="true">描述</div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar" style="text-align: center; padding-top: 8px; padding-bottom: 8px;" borderstyle="border:0;">
+    <a class="mini-button" style="width: 60px;" onclick="onOk()">确定</a>
+    <span style="display: inline-block; width: 25px;"></span>
+    <a class="mini-button" style="width: 60px;" onclick="onCancel()">取消</a>
+</div>
+
+<script type="text/javascript">
+    var grid = null;
+    var selectedIDs = @(ViewBag.SelectedRoleIDs)
+
+    $(function () {
+        mini.parse();
+        grid = mini.get("grid");
+
+        grid.load();
+    });
+
+    function selectRows(e) {
+        if (!selectedIDs)
+            return;
+
+        for (var i = 0; i < selectedIDs.length; i++) {
+            var row = grid.findRow(function (row) {
+                if (row.ID == selectedIDs[i]) return true;
+            });
+            if (row)
+                grid.select(row);
+        }
+    }
+
+    function GetData() {
+        var rows = grid.getSelecteds();
+        return rows;
+    }
+    function search() {
+        var key = mini.get("key").getValue();
+        grid.load({ key: "name-" + key });
+    }
+    function onKeyEnter(e) {
+        search();
+    }
+    function onRowDblClick(e) {
+        onOk();
+    }
+    //////////////////////////////////
+    function CloseWindow(action) {
+        if (action == "ok") {
+            var ids = [];
+            var selectedRows = grid.getSelecteds();
+            for (var i = 0; i < selectedRows.length; i++) {
+                ids.push(selectedRows[i].ID);
+            }
+
+            $.ajax({
+                url: "/Admin/UserRole/AuthorizeRoles?userID=" + "@ViewBag.UserID",
+                type: "post",
+                contentType: "application/json;",
+                data: JSON.stringify(ids),
+                success: function (result) {
+                    if (result.Success) {
+                        showTip("保存成功！", "success");
+
+                        if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+                        else window.close();
+                    } else {
+                        mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                            "错误信息：" + errorThrown, +
+                            "<br/>状态码：" + textStatus);
+                }
+            });
+        } else {
+            if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+            else window.close();
+        }
+    }
+
+    function onOk() {
+        CloseWindow("ok");
+    }
+    function onCancel() {
+        CloseWindow("cancel");
+    }
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Center",
+            timeout: 2000
+        });
+    }
+
+</script>

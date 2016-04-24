@@ -1,0 +1,272 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="mini-splitter" style="width: 100%; height: 100%;">
+    <div showcollapsebutton="true" size="40">
+        <div class="mini-toolbar" style="padding: 2px; border-top: 0; border-left: 0; border-right: 0;">
+            <span style="padding-left: 5px;">姓名：</span>
+            <input id="searchKey" class="mini-textbox" onenter="searchByName" />
+            <a class="mini-button" iconcls="icon-search" plain="true" onclick="searchByName">查找</a>
+        </div>
+        <div class="mini-fit">
+            <ul class="mini-tree" onnodeclick="departmentClick" url="@Url.Action("AllDepartment", "DepManage")" style="width: 100%;"
+                showtreeicon="true" textfield="Name" idfield="ID" parentfield="ParentID" resultastree="false">
+            </ul>
+        </div>
+    </div>
+    <div size="240">
+        <!--toolbar-->
+        <div class="mini-toolbar">
+            <a class="mini-button" iconcls="icon-add" onclick="addUser">新增</a>
+            <a class="mini-button" iconcls="icon-remove" onclick="removeUser">删除</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconcls="icon-reset" onclick="resetPassword">重置密码</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconcls="icon-save" plain="true" onclick="saveChanges">保存</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconcls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+        </div>
+        <!--sysUserList-->
+        <div id="sysUserList" class="mini-datagrid" width="100%" height="400" contextMenu="#gridMenu"
+            url="@Url.Action("SysUserList", "UserManage")" allowResize="true"  idField="ID" allowCellEdit="true"
+            allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" showColumnsMenu="true" 
+            sizeList="[20,30,50,100]" pageSize="20" frozenStartColumn="0" frozenEndColumn="2">
+            <div property="columns">
+                <div type="indexcolumn"></div>
+                <div field="LoginName" width="120" headeralign="center" allowsort="true">
+                    员工帐号
+                    <input property="editor" required="true" vtype="rangeLength:0, 30" class="mini-textbox" style="width: 100%;" />
+                </div>
+                <div field="Name" width="80" headeralign="center" allowsort="true">
+                    姓名
+                    <input property="editor" required="true" vtype="rangeLength:0,20" class="mini-textbox" style="width: 100%;" />
+                    <input id="nameFilter" property="filter" class="mini-textbox" onvaluechanged="onNameFilterChanged" style="width: 100%;" />
+                </div>
+                <div header="基本信息" headeralign="center">
+                    <div property="columns">
+                        <div field="Gender" width="100" align="center" allowsort="true">
+                            性别
+                    <input property="editor" valuefield="ID" textfield="Text" class="mini-combobox" style="width: 100%;" data="genders" />
+                        </div>
+                        <div field="Age" width="60" allowsort="true">
+                            年龄
+                    <input property="editor" class="mini-spinner" minvalue="0" maxvalue="100" />
+                        </div>
+                        <div field="BirthDate" width="100" allowsort="true" dateformat="yyyy-MM-dd">
+                            出生日期
+                    <input property="editor" class="mini-datepicker" style="width: 100%;" />
+                        </div>
+                        <div field="Married" type="checkboxcolumn" width="50" align="center" align="center" allowsort="true">婚否</div>
+                        <div field="Email" width="100">
+                            邮箱
+                    <input property="editor" vtype="email;rangeLength:0, 50" required="true" class="mini-textbox" style="width: 100%;" />
+                        </div>
+                        <div field="Phone" width="100">
+                            电话
+                    <input property="editor" vtype="rangeLength:0, 50" class="mini-textbox" style="width: 100%;" />
+                        </div>
+                    </div>
+                </div>
+                <div header="工作信息" headeralign="center">
+                    <div property="columns">
+                        <div width="120" headeralign="center">
+                            部门&职务
+                        <div property="columns">
+                            <div field="DepartmentID" displayField="DepartmentName" width="120">
+                                所属部门
+                                <input id="departments" property="editor" class="mini-treeselect" url="@Url.Action("AllDepartment", "DepManage")" 
+                                    multiSelect="false" textField="Name" valueField="ID" parentField="ParentID" expandOnLoad="true" 
+                                    showClose="true" required="true" oncloseclick = "onCloseClick" popupWidth="200" onbeforenodeselect="beforeDeptSelect" />
+                            </div>
+                            <div field="Position" width="100">
+                                职位
+                                <input property="editor" required="true" class="mini-textbox" style="width: 100%;" />
+                            </div>
+                        </div>
+                        </div>
+                        <div field="Salary" width="80" allowsort="true">
+                            薪资
+                    <input property="editor" class="mini-spinner" increment="100" decimalplaces="2" minvalue="0" maxvalue="1000000" />
+                        </div>
+                    </div>
+                </div>
+                <div header="学历信息" headeralign="center">
+                    <div property="columns">
+                        <div field="Education" width="100">
+                            学历
+                    <input property="editor" vtype="rangeLength:0, 30" class="mini-textbox" style="width: 100%;" />
+                        </div>
+                        <div field="School" width="120">
+                            毕业院校
+                    <input property="editor" vtype="rangeLength:0, 50" class="mini-textbox" style="width: 100%;" />
+                        </div>
+                    </div>
+                </div>
+                <div field="IsAdmin" width="60" headeralign="center" align="center" allowsort="true">Admin?</div>
+                <div field="InUse" type="checkboxcolumn" width="60" headeralign="center" align="center" allowsort="true">在用?</div>
+                <div field="AddedTime" width="100" headeralign="center" dateformat="yyyy-MM-dd" allowsort="true">创建日期</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--contextMenu-->
+<ul id="gridMenu" class="mini-contextmenu">
+    <li name="add" iconcls="icon-add" onclick="addUser">新增</li>
+    <li name="remove" iconcls="icon-remove" onclick="removeUser">删除</li>
+    <span class="separator"></span>
+    <li name="remove" iconcls="icon-reset" onclick="resetPassword">重置密码</li>
+</ul>
+
+<script type="text/javascript">
+
+    var sysUserList = null;
+    var departments = null;
+    var menu = null;
+    var searchKey = null;
+    var genders = [{ ID: 0, Text: '女' }, { ID: 1, Text: '男' }, { ID: -1, Text: '未知' }];
+
+    $(function () {
+        mini.parse();
+
+        sysUserList = mini.get("sysUserList");
+        departments = mini.get("departments");
+        menu = mini.get("gridMenu");
+        searchKey = mini.get("searchKey");
+
+        sysUserList.on("drawcell", function (e) {
+            var record = e.record,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+
+            if (field == "Salary") {
+                if(value)
+                    e.cellHtml = "￥" + value;
+                if (value > 10000)
+                    e.cellStyle = "color:red;font-weight:bold;";
+            }
+            if (field == "Age") {
+                if(value)
+                    e.cellHtml = value + "岁";
+            }
+            if (field == "IsAdmin") {
+                if (value)
+                    e.cellHtml = "是";
+                else
+                    e.cellHtml = "否";
+            }
+            if (column.field == "Gender") {
+                if (value == "0") {
+                    //e.cellHtml = "<span class='icon-female'></span>";
+                    e.cellHtml = "女";
+                } else if (value == "1") {
+                    //e.cellHtml = "<span class='icon-male'></span>";
+                    e.cellHtml = "男";
+                } else {
+                    e.cellHtml = "未知";
+                }
+            }
+        });
+
+        sysUserList.load();
+    });
+    function addUser() {
+        var newRow = { IsAdmin: true};
+        sysUserList.addRow(newRow, 0);
+    }
+    function removeUser() {
+        var rows = sysUserList.getSelecteds();
+        sysUserList.removeRows(rows);
+    }
+    function resetPassword() {
+        var userId = sysUserList.getSelected().ID;
+        mini.prompt("请输入密码：", "输入密码", function (action, password) {
+            if (action == "ok") {
+                var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+                $.ajax({
+                    type: "post",
+                    url: "/Admin/UserManage/ResetPassword",
+                    data: { userId:userId, newPassword: password },
+                    dataType: "json",
+                    success: function (data) {
+                        mini.hideMessageBox(messageid);
+                        var returnData = data;
+                        if (returnData.Success) {
+                            showTip("数据保存成功！", "success");
+                        } else {
+                            mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        mini.hideMessageBox(messageid);
+                        mini.alert("<b>出现错误！</b><br/>" +
+                            "错误信息：" + errorThrown, +
+                            "<br/>状态码：" + textStatus);
+                    }
+                });
+            }
+        });
+    }
+    function refreshData() {
+        sysUserList.reload();
+    }
+    function saveChanges() {
+        sysUserList.validate();
+        if (!sysUserList.isValid())
+            return;
+        var data = sysUserList.getChanges();
+        if (data.length <= 0)
+            return;
+
+        sysUserList.loading("保存中，请稍后...");
+        $.ajax({
+            url: "/Admin/UserManage/SaveChanges",
+            data: JSON.stringify(data),
+            type: "post",
+            contentType: "application/json;",
+            success: function (text) {
+                showTip("保存成功！", "success");
+                sysUserList.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+    function departmentClick(e) {
+        if (!e.isLeaf)
+            return;
+        sysUserList.load({ key:"department-" + e.node.ID });
+    }
+    function searchByName() {
+        sysUserList.load({ key: "name-" + searchKey.value });
+    }
+    function beforeDeptSelect(e) {
+        if (e.isLeaf == false)
+            e.cancel = true;
+    }
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+    function onCloseClick(e) {
+        var obj = e.sender;
+        obj.setText("");
+        obj.setValue("");
+    }
+</script>
+
+@*pageIndex:0
+pageSize:20
+sortField:
+sortOrder:*@

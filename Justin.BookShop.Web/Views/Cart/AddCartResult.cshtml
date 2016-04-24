@@ -1,0 +1,19 @@
+﻿@{
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+@using Justin.BookShop.Entities;
+@model Justin.BookShop.Controllers.Models.AddCartResult
+@{
+    var user = System.Web.HttpContext.Current.Session["user"] as User;
+}
+<link href="~/Content/themes/cart.css" rel="stylesheet" />
+<div class="m" id="succeed">
+    <div class="success">
+        <div class="success-b">
+            <h3>@Model.Message</h3>
+        </div>
+        <span id="initCart_next_go">
+            @Html.ActionLink("去结算", "List", "Cart", new { userId = user == null ? null : (object)user.ID}, new { id = "GotoShoppingCart", @class = "btn-pay" })
+            <a href="@Model.PreUrl" class="btn-continue">继续购物</a></span>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+﻿@model Justin.BookShop.Controllers.Models.BookCategoryList
+<script src="~/Scripts/category.js"></script>
+<link href="~/Content/themes/category.css" rel="stylesheet" />
+
+<div class="lanmu-content">
+    <dl class="lanmu-list">
+        <dt>
+            <b>@(Model.Parent != null ? Html.ActionLink("<< " + Model.Parent.Name, "CategoryList",
+            new {categoryID = Model.Parent.Parent != null ? (object)Model.Parent.Parent.ID : null }):
+                MvcHtmlString.Create("所有分类"))</b>
+        </dt>
+        @foreach (var c in Model.Children)
+        {
+            if (Model.SelectedCategory != null && c.ID == Model.SelectedCategory.ID)
+            {
+                <dd><b>@Html.ActionLink(c.Children.Count > 0 ? c.Name + " >>" : c.Name, "CategoryList", new { categoryID = c.ID }, new { title = c.Name })</b></dd>
+            }
+            else
+            {
+                <dd>@Html.ActionLink(c.Children.Count > 0 ? c.Name + " >>" : c.Name, "CategoryList", new { categoryID = c.ID }, new { title = c.Name })</dd>
+            }
+        }
+    </dl>
+    <a class="listmore" style="display: none;" href="javascript:;">查看更多 ↓</a>
+</div>
+

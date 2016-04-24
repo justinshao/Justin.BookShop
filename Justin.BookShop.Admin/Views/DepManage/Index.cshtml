@@ -1,0 +1,303 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <div class="mini-toolbar">
+        <a class="mini-button" iconcls="icon-add" onclick="add">新增机构</a>
+        <a class="mini-button" iconcls="icon-edit" onclick="beginEdit">编辑机构</a>
+        <a class="mini-button" iconcls="icon-remove" onclick="removeNode">删除机构</a>
+        <span class="separator"></span>
+        <a class="mini-button" iconcls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+    </div>
+
+    <h1 id="title"></h1>
+    <ul id="depts" class="mini-tree" style="width: 200px; padding: 5px;" url="/Admin/DepManage/Children?ID=-1"
+        onbeforedrop="beforedrop" onbeforeexpand="loadNode" onendedit="rename"
+        showtreeicon="true" textfield="Name" idfield="ID" parentfield="ParentID"
+        contextmenu="#treeMenu" expandonload="true" allowdrag="true" allowdrop="true" allowleafdropin="true">
+    </ul>
+
+    <ul id="treeMenu" class="mini-contextmenu" onbeforeopen="beforeOpen">
+        <li class="separator"></li>
+        <li>
+            <span iconcls="icon-add">新增机构</span>
+            <ul>
+                <li onclick="addBefore">在该项前新增机构</li>
+                <li onclick="addAfter">在该项后新增机构</li>
+                <li onclick="addNode">新增子机构</li>
+            </ul>
+        </li>
+        <li name="edit" iconcls="icon-edit" onclick="beginEdit">编辑</li>
+        <li name="remove" iconcls="icon-remove" onclick="removeNode">删除</li>
+    </ul>
+
+    <script type="text/javascript">
+        var tree = null;
+
+        $(function () {
+            tree = mini.get("#depts");
+            menu = mini.get("#treeMenu");
+
+            var title = $("#title");
+            if (!tree.data || tree.data.length == 0)
+                title.text("当前没有任何组织机构");
+            else
+                title.text("XXX公司组织机构");
+        });
+
+        function addBefore(e) {
+            var node = tree.getSelectedNode();
+            var parent = tree.getParentNode(node);
+            var pid = parent ? parent.ID : -1;
+            var sort = node ? node.Sort - 1 : 1;
+
+            mini.prompt("请输入部门名称：", "输入部门", function (action, name) {
+                if (action == "ok") {
+                    ////////////////////////////////////
+                    // 在这里做远程处理（新增）
+                    doRemoteAdd(pid, name, sort, "before", node, null);
+                }
+            });
+        }
+        function addAfter(e) {
+            var node = tree.getSelectedNode();
+            var parent = tree.getParentNode(node);
+            var pid = parent ? parent.ID : -1;
+            var sort = node ? node.Sort + 1 : 1;
+
+            mini.prompt("请输入部门名称：", "输入部门", function (action, name) {
+                if (action == "ok") {
+                    ////////////////////////////////////
+                    // 在这里做远程处理（新增）
+                    doRemoteAdd(pid, name, sort, "after", node, null);
+                }
+            });
+        }
+        function addNode(e) {
+            var parent = tree.getSelectedNode();
+            var pid = parent ? parent.ID : -1;
+            var sort = tree.getList()[tree.getList().length - 1].Sort + 1;
+
+            mini.prompt("请输入部门名称：", "输入部门", function (action, name) {
+                if (action == "ok") {
+                    ////////////////////////////////////
+                    // 在这里做远程处理（新增）
+                    doRemoteAdd(pid, name, sort, "add", null, parent);
+                }
+            });
+        }
+        function doRemoteAdd(pid, name, sort, effect, targetNode, parentNode) {
+            var returnData = {};
+            var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+            $.ajax({
+                type: "post",
+                url: "/Admin/DepManage/Add",
+                data: JSON.stringify({ ID: -1, ParentID: pid, Name: name, Sort: sort }),
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    mini.hideMessageBox(messageid);
+                    var returnData = data;
+                    if (returnData.Success) {
+                        var newNode = {
+                            'iconCls': 'icon-cdept', 'ID': returnData.Department.ID, 'ParentID': pid,
+                            'Name': returnData.Department.Name, 'Sort': returnData.Department.Sort
+                        };
+                        switch (effect) {
+                            case "before":
+                            case "after": {
+                                tree.addNode(newNode, effect, targetNode);
+                                break;
+                            }
+                            case "add": {
+                                // 要先改变图标，否则会没有效果
+                                if (parentNode)
+                                    parentNode.iconCls = "icon-dept";
+                                tree.addNode(newNode, effect, parentNode);
+                                break;
+                            }
+                        }
+                        showTip("数据保存成功！", "success");
+                    } else {
+                        mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mini.hideMessageBox(messageid);
+                    mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus);
+                }
+            });
+        }
+        function rename(e) {
+            ////////////////////////////////////
+            // 在这里做远程处理（新增）
+            var newName = e.node.Name;
+            var node = e.node;
+            var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+            $.ajax({
+                type: "post",
+                url: "/Admin/DepManage/Rename",
+                data: { id: node.ID, newName: newName },
+                dataType: "json",
+                success: function (data) {
+                    mini.hideMessageBox(messageid);
+                    var returnData = data;
+                    if (returnData.Success) {
+                        showTip("数据保存成功！", "success");
+                    } else {
+                        mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    mini.hideMessageBox(messageid);
+                    mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus, "错误消息");
+                }
+            });
+        }
+        function removeNode(e) {
+            var node = tree.getSelectedNode();
+            var allow = tree.isLeaf(node);
+            var parent = tree.getParentNode(node);
+            var isParentHasOnlyOne = tree.getChildNodes(parent).length == 1;
+
+            if (node && allow) {
+                mini.confirm("确定删除选中部门?", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        ////////////////////////////////////
+                        // 在这里做远程处理（删除）
+                        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+                        $.ajax({
+                            type: "post",
+                            url: "/Admin/DepManage/Remove",
+                            data: { id: node.ID },
+                            dataType: "json",
+                            success: function (data) {
+                                mini.hideMessageBox(messageid);
+                                var returnData = data;
+                                if (returnData.Success) {
+                                    showTip("数据保存成功！", "success");
+                                    // 更改父节点图标, 要先改变图标，否则会没有效果
+                                    if (isParentHasOnlyOne)
+                                        parent.iconCls = "icon-cdept";
+                                    tree.removeNode(node);
+                                } else {
+                                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                mini.hideMessageBox(messageid);
+                                mini.alert("<b>出现错误！</b><br/>" +
+                                    "错误信息：" + errorThrown, +
+                                    "<br/>状态码：" + textStatus, "错误消息");
+                            }
+                        });
+                    }
+                }
+            );
+            }
+        }
+        function beforedrop(e) {
+            var effect = e.dragAction;                //投放方式：add|before|after
+            var node = e.dragNode;                    //被拖拽的节点
+            var targetNode = e.dropNode;              //目标投放节点
+            var oldParent = tree.getParentNode(node); //被拖拽的父节点
+            var newParent = effect == "add" ? targetNode : tree.getParentNode(targetNode); // 新的父节点
+            var isPnodeHasOne = tree.getChildNodes(oldParent).length == 1;
+            var isNewParentLeaf = tree.isLeaf(targetNode);
+            var changeNewParentToParentIcon = (isNewParentLeaf && effect == "add");
+            var keepOldParentIcon = (targetNode == oldParent && effect === "add");
+            var id = node.ID;
+            var sort = effect == "add" ? tree.getChildNodes(newParent).length + 1 :
+                       effect == "before" ? targetNode.Sort - 1 : targetNode.Sort + 1;
+            var newParentID = (newParent && newParent.ID) ? newParent.ID : -1;
+
+            /////////////////////////////////////////////
+            // 在这里做远程处理
+            var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+            $.ajax({
+                type: "post",
+                url: "/Admin/DepManage/Reorder",
+                data: { id: node.ID, sort: sort, newParentID: newParentID },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    mini.hideMessageBox(messageid);
+                    var returnData = data;
+                    if (returnData.Success) {
+                        // 更新图标样式
+                        if (changeNewParentToParentIcon)
+                            targetNode.iconCls = "icon-dept";
+                        if (keepOldParentIcon)
+                            oldParent.iconCls = "icon-dept";
+                        else if (isPnodeHasOne)
+                            oldParent.iconCls = "icon-cdept";
+
+                        showTip("数据保存成功！", "success");
+                    } else {
+                        e.cancel = true;
+                        mini.alert("<b>数据保存失败！</b><br>错误信息：" + returnData.ErrorMessage, "错误消息");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    e.cancel = true;
+                    mini.hideMessageBox(messageid);
+                    mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus, "错误消息");
+                }
+            });
+        }
+        function refreshData(e) {
+            tree.load();
+        }
+        function loadNode(e) {
+            if (e.node && !e.node.isLeaf) {
+                tree.loadNode(e.node);
+            }
+        }
+        function add() {
+            var node = tree.getSelectedNode();
+
+            if (!tree.data || tree.data.length == 0 || !node || tree.isLeaf(node))
+                // 如果当前没有任何节点||者没有任何选中的节点||或者选中的节点为子节点 
+                // 那么就在当前节点（如果有）的兄弟节点或根节点下新增节点
+                addAfter();
+            else
+                // 如果当前选中的节点不是叶子节点，那么就在当前节点下新增子节点
+                addNode();
+        }
+        function beforeOpen(e) {
+            var menu = e.sender;
+            var node = tree.getSelectedNode();
+            if (!node) {
+                e.cancel = true;
+                return;
+            }
+
+            // 不允许删除有子节点的节点
+            var removeItem = mini.getbyName("remove", menu);
+            removeItem.show();
+            if (!tree.isLeaf(node)) {
+                removeItem.hide();
+            }
+        }
+        function showTip(content, state) {
+            mini.showTips({
+                content: content,
+                state: state,
+                x: "Center",
+                y: "Top",
+                timeout: 2000
+            });
+        }
+        function beginEdit() {
+            var node = tree.getSelectedNode();
+            tree.beginEdit(node);
+        }
+
+    </script>

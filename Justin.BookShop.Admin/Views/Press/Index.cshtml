@@ -1,0 +1,173 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    .actionLinks
+    {
+        margin-left:15px;
+        display:none;
+    }
+    .mini-grid-row-hover .actionLinks
+    {
+        display:inline;
+    }
+    .New_Button, .Edit_Button, .Delete_Button, .Update_Button, .Cancel_Button
+    {
+        font-size:11px;color:#1B3F91;font-family:Verdana;  
+        margin-right:5px;
+    }
+</style>
+
+<div class="mini-toolbar" width="100%">
+    <table style="width: 100%;">
+        <tr>
+            <td>
+                <input id="key" class="mini-textbox" emptytext="请输入关键词" onenter="search()" />
+                <a class="mini-button" iconCls="icon-search" onclick="search()">查询</a>
+                <a class="mini-button" iconCls="icon-refresh" onclick="refreshData">刷新</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="presses" class="mini-datagrid" width="65%"  allowResize="true" showPager="true"
+        url="@Url.Action("List", "Press")"  idField="ID" emptyText="数据为空，
+    <a href='javascript:newRow()'>增加一条</a>" showEmptyText="true">
+    <div property="columns">
+        <div name="action" width="60" headeralign="center" align="center" renderer="onActionRenderer">#</div>
+        <div field="Name" width="200" headeralign="center" renderer="onPressNameRenderer">
+            出版社名称<input property="editor" class="mini-textbox" required="true" width="100%" />
+        </div>
+        <div field="Address" width="200" headeralign="center">
+            地址<input property="editor" class="mini-textarea" width="100%" />
+        </div>
+        <div field="Contact" width="120" headeralign="center">
+            联系方式<input property="editor" class="mini-textarea" width="100%" />
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var grid = null;
+
+    $(function () {
+        mini.parse();
+
+        grid = mini.get("presses");
+        grid.load();
+    });
+
+    function updateRow() {
+        grid.validate();
+        if (!grid.isValid())
+            return;
+        grid.commitEdit();
+        var data = grid.getChanges();
+        if (data.length <= 0) {
+            grid.cancelEdit();
+            return;
+        }
+
+        grid.loading("保存中，请稍后...");
+        $.ajax({
+            url: "/Admin/Press/SaveChanges",
+            type: "post",
+            contentType: "application/json;",
+            data: JSON.stringify(data),
+            success: function (result) {
+                if (result.Success) {
+                    showTip("保存成功！", "success");
+                } else {
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage);
+                }
+                grid.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                mini.alert("<b>出现错误！</b><br/>" +
+                        "错误信息：" + errorThrown, +
+                        "<br/>状态码：" + textStatus);
+                grid.reload();
+            }
+        });
+    }
+
+    function delRow(uid) {
+        var row = grid.getRowByUID(uid);
+        if (row) {
+            mini.confirm("确定删除？", "确定？", function (action) {
+                if (action == "ok") {
+                    grid.removeRow(row, true);
+                    updateRow();
+                }
+            });
+        }
+    }
+
+    function search() {
+        var key = mini.get("key").getValue();
+        grid.load({ key: "name-" + key });
+    }
+
+    function newRow() {
+        var row = {};
+        grid.addRow(row, 0);
+        grid.beginEditRow(row);
+    }
+
+    function editRow(row_uid) {
+        var row = grid.getRowByUID(row_uid);
+        if (row) {
+            grid.beginEditRow(row);
+            if(row._state == "added")
+                grid.removeRow(row, true);
+        }
+    }
+
+    function refreshData() {
+        grid.reload();
+    }
+
+    function cancelRow(uid) {
+        var row = grid.getRowByUID(uid);
+        if(row)
+            grid.cancelEditRow(row);
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        var uid = record._uid;
+
+        var s = "#";
+        if (grid.isEditingRow(record)) {
+            s = "<a class='Update_Button' href='javascript:updateRow()'>确定</a> " +
+                     "<a class='Cancel_Button' href='javascript:cancelRow(" + uid + ")'>取消</a>";
+        }
+        mini.parse();
+        return s;
+    }
+
+    function onPressNameRenderer(e) {
+        var record = e.record;
+        if (grid.isEditingRow(record))
+            return;
+
+        var uid = record._uid;
+        var s = e.value;
+        s += "<span class='actionLinks'>[<a href='javascript:delRow(" + uid + ")'>删除</a>" +
+            "<span class='actionLinks'><a href='javascript:editRow(" + uid + ")'>编辑</a>" +
+            "<span class='actionLinks'><a href='javascript:newRow()'>新增</a>]";
+        return s;
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+</script>  

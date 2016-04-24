@@ -1,0 +1,27 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)libarary\Justin.BookShop.Entities.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Justin.BookShop.Entities.Util" #>
+<#@ output extension=".cs" #>
+<#var modelTypes = EntityTypeUtil.FindEntityTypes();#>
+namespace Justin.BookShop.IRepository
+{
+    public interface IDbSession
+    {
+        #region Repository
+    <#
+    foreach(Type t in modelTypes)
+    { 
+    #>
+    I<#=t.Name#>Repository <#=t.Name#>s{ get; }
+    <#
+    }
+    #>
+    #endregion
+
+        void SaveChanges();
+    }
+}

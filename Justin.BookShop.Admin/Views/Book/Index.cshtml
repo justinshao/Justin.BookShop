@@ -1,0 +1,420 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Justin.BookShop.Controllers.Admin;
+
+<script src="~/Scripts/jquery.tmpl.js"></script>
+<script src="~/Scripts/ckeditor/ckeditor.js"></script>
+<script src="~/Scripts/swfupload.js"></script>
+<style type="text/css">
+.detailForm td
+{
+    line-height:22px;
+    font-size:13px;
+    font-family:Verdana;
+}
+</style> 
+<!--toolbar-->
+<div class="mini-toolbar">
+    <a class="mini-button" iconCls="icon-add" onclick="add">增加</a>
+    <a class="mini-button" iconCls="icon-edit" onclick="edit">修改</a>
+    <a class="mini-button" iconCls="icon-remove" onclick="remove">删除</a>
+    <span class="separator"></span>    
+    <a class="mini-button" iconCls="icon-refresh" plain="true" onclick="refreshData">刷新</a>
+</div>
+<!--books-->
+<div id="books" class="mini-datagrid" width="100%" height="90%"
+    url="@Url.Action("List", "Book")" enablehottrack="false" allowRowSelect="true"
+    onshowrowdetail="onShowRowDetail" autohiderowdetail="false" allowResize="true" showFilterRow="true">
+    <div property="columns">
+        <div type="indexcolumn"></div>
+        <div type="expandcolumn"></div>
+        <div field="Name" width="120" headeralign="center" allowsort="true">书名
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'name')" style="width:100%;" />
+        </div>
+        <div field="AuthorNames" width="100">作者
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'author')" style="width:100%;" />
+        </div>
+        <div field="PressNames" width="100">出版社
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'press')" style="width:100%;" />
+        </div>
+        <div field="ISBN" width="100">ISBN
+            <input property="filter" class="mini-textbox" onvaluechanged="onFilterChanged(this, 'isbn')" style="width:100%;" />
+        </div>
+        <div field="OfficialPrice" width="50" dataType="currency" headeralign="center" align="center" allowsort="true">定价</div>
+        <div field="SellingPrice" width="50" dataType="currency" allowsort="true" align="center" headeralign="center">售价</div>
+        <div field="PublicationDate" width="100" headeralign="center" dateformat="yyyy年MM月dd日" allowsort="true">出版日期</div>
+    </div>
+</div>
+<!--window-->
+<div id="window" class="mini-window" width="800" height="600" title="书籍编辑"
+    showMaxButton="true" showCollapseButton="true" showshadow="true" iconCls="icon-edit"
+    showtoolbar="true" showfooter="true" allowresize="true" allowdrag="true">
+    <div property="footer" class="toolbar-footer">
+        <a class="mini-button" iconCls="icon-ok" onclick="ok">确定</a>
+        <a class="mini-button" iconCls="icon-cancel" onclick="cancel">取消</a>
+    </div>
+    <!--editform-->
+    <div id="editForm">
+        <input id="bookId" class="mini-hidden" name="ID" />
+        <input id="bookPic" class="mini-hidden" name="Picture" />
+        <input id="bookThmb" class="mini-hidden" name="Thumbnail" />
+        <input id="bookState" class="mini-hidden" name="_state" />
+
+        <table style="width: 100%; border-collapse: collapse" border="1">
+            <tr>
+                <td rowspan="3" colspan="2" style="text-align: right">
+                    <img class="book-big" id="Picture"/><br />
+                    <input class="mini-fileupload" limittype="*.jpg;*.png"
+                    flashUrl="@(WebConfig.ScriptFileServer + "swfupload.swf")" limitSize="1MB"
+                    uploadUrl="@(WebConfig.BookImageUploadServer)" buttonText="选择图片"
+                    onuploadSuccess="setPicture" uploadOnSelect="true"
+                    onuploadError="onUploadError" />
+                </td>
+                <td style="text-align: right; width:10%">书名：</td>
+                <td colspan="3"><input name="Name" class="mini-textarea" required="true" emptytext="必填" width="100%" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: right">主标题：</td>
+                <td><input name="MainTitle" class="mini-textarea" width="100%" /></td>
+                <td style="text-align: right; width:10%">副标题：</td>
+                <td><input name="MinorTitle" class="mini-textarea" width="100%" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: right">作者：</td>
+                <td>
+                    <input id="authors" name="AuthorIDs" class="mini-textboxlist" required="true" width="100%"
+                           url="@Url.Action("FilterAuthor", "Author")"
+                           valueField="ID" textField="Name" />
+                </td>
+                <td style="text-align: right">出版社：</td>
+                <td><input id="presses" name="PressIDs" class="mini-textboxlist" required="true" width="100%"
+                           url="@Url.Action("FilterPress", "Press")"
+                           valueField="ID" textField="Name" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4" colspan="2" style="text-align: right">
+                    <img class="book-small" id="Thumbnail"><br />
+                    <input class="mini-fileupload" limittype="*.jpg;*.png"
+                    uploadurl="@(WebConfig.BookImageUploadServer)" buttonText="缩略图"
+                    onuploadsuccess="setThumbnail" uploadOnSelect="true" limitSize="1MB"
+                    onuploaderror="onUploadError" flashUrl="@(WebConfig.ScriptFileServer + "swfupload.swf")"/>
+                </td>
+                <td style="text-align: right">页数：</td>
+                <td><input name="PageNum" class="mini-spinner" minvalue="0" required="true" maxvalue="100000" /></td>
+                <td style="text-align: right">语言：</td>
+                <td><input name="Language" class="mini-textbox" required="true" emptytext="必填" width="100%" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: right;">ISBN：</td>
+                <td><input name="ISBN" class="mini-textbox" required="true" emptytext="必填" width="100%" /></td>
+                <td style="text-align: right;">类别：</td>
+                <td><input name="CategoryID" class="mini-treeselect" url="@Url.Action("List", "BookCategory")" 
+                    required="true" valueField="ID" textField="Name" idField="ID" parentField="ParentID" expandOnLoad="true"
+                     showRadioButton="true" width="100%" 
+                    showFolderCheckBox="false" allowInput="true" onbeforenodeselect="beforeNodeSelect"/></td>
+            </tr>
+            <tr>
+                <td style="text-align: right">定价：</td>
+                <td><input name="OfficialPrice" class="mini-spinner" required="true" decimalplaces="2" minvalue="0" maxvalue="100000" /></td>
+                <td style="text-align: right">售价：</td>
+                <td><input name="SellingPrice" class="mini-spinner" decimalplaces="2" minvalue="0" maxvalue="100000" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: right">出版日期：</td>
+                <td><input name="PublicationDate" class="mini-datepicker" required="true" /></td>
+                <td style="text-align: right">打印日期：</td>
+                <td><input name="PrintingTime" class="mini-datepicker" /></td>
+            </tr>
+            <tr>
+                <td style="text-align:right; vertical-align:top; width:10%;">简介：</td>
+                <td colspan="5"><textarea name="Introduction" class="ckeditor" cols="20" rows="2"></textarea></td>
+            </tr>
+            <tr>
+                <td style="text-align:right; vertical-align:top;">目录：</td>
+                <td colspan="5"><textarea name="Catalog" class="ckeditor" cols="20" rows="2"></textarea></td>
+            </tr>
+            <tr>
+                <td style="text-align:right; vertical-align:top;">摘要：</td>
+                <td colspan="5"><textarea name="Digest" class="ckeditor" cols="20" rows="2"></textarea></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!--template-->
+<script id="formTemplate" type="text/x-jquery-tmpl">
+    <table class="detailForm">
+        <tr>
+            <td rowspan="3" colspan="2">
+                <img class="book-big" src="@(WebConfig.BookImageFileServer)${Picture}"><br />
+            </td>
+            <td style="width:10%"><b>书名：</b></td>
+            <td colspan="3"><h3>${Name}</h3></td>
+        </tr>
+        <tr>
+            <td><b>主标题：</b></td>
+            <td>${MainTitle}</td>
+            <td style="width:10%"><b>副标题：</b></td>
+            <td>${MinorTitle}</td>
+        </tr>
+        <tr>
+            <td><b>作者：</b></td>
+            <td>${AuthorNames}</td>
+            <td><b>出版社：</b></td>
+            <td>${PressNames}</td>
+        </tr>
+        <tr>
+            <td rowspan="4" colspan="2" style="text-align:center">
+                <img class="book-small" src="@(WebConfig.BookImageFileServer)${Thumbnail}" />
+            </td>
+            <td><b>页数：</b></td>
+            <td>${PageNum}</td>
+            <td><b>语言：</b></td>
+            <td>${Language}</td>
+        </tr>
+        <tr>
+            <td><b>ISBN：</b></td>
+            <td>${ISBN}</td>
+            <td><b>类别：</b></td>
+            <td>${Category}</td>
+        </tr>
+        <tr>
+            <td><b>定价：</b></td>
+            <td>￥${OfficialPrice}</td>
+            <td><b>售价：</b></td>
+            <td>￥${SellingPrice}</td>
+        </tr>
+        <tr>
+            <td><b>出版日期：</b></td>
+            <td>${PublicationDate}</td>
+            <td><b>打印日期：</b></td>
+            <td>${PrintingTime}</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top; text-align:center"><b>简介：</b></td>
+            <td colspan="5">{{html Introduction}}</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;text-align:center"><b>目录：</b></td>
+            <td colspan="5">{{html Catalog}}</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top; text-align:center"><b>摘要：</b></td>
+            <td colspan="5">{{html Digest}}</td>
+        </tr>
+    </table>
+</script>
+
+<script type="text/javascript">
+    var grid = null;
+    var editWindow = null;
+    var editForm = null;
+
+    $(function () {
+        mini.parse();
+        editWindow = mini.get("window");
+        editForm = new mini.Form("editForm");
+        grid = mini.get("books");
+
+        CKEDITOR.replace('Introduction');
+        CKEDITOR.replace('Catalog');
+        CKEDITOR.replace('Digest');
+
+        grid.load();
+    });
+
+
+    function setPicture(e) {
+        mini.get("bookPic").setValue(e.serverData);
+        $("#Picture").attr("src", "@(WebConfig.BookImageFileServer)" + e.serverData);
+        mini.get("Picture").setValue(e.serverData);
+    }
+
+    function setThumbnail(e) {
+        mini.get("bookThmb").setValue(e.serverData);
+        $("#Thumbnail").attr("src", "@(WebConfig.BookImageFileServer)" + e.serverData);
+        mini.get("Thumbnail").setValue(e.serverData);
+    }
+
+    function onUploadError(e) {
+        mini.alert("<b>图片上传失败！</b><br/>" +
+                    "错误信息：" + e.message, +
+                    "<br/>状态码：" + e.code);
+    }
+
+    function add(e) {
+        var row = { ID: -1, _state: "added" }
+        editRow(row);
+    }
+
+    function edit(e) {
+        var row = grid.getSelected();
+        row._state = "modified";
+        editRow(row);
+    }
+
+    function editRow(row) {
+        editWindow.show();
+        clearFormData();
+
+        editForm.loading();
+        $.ajax({
+            url: "/Admin/Book/GetByID?bookId=" + row.ID,
+            type: "post",
+            success: function (data) {
+                editForm.unmask();
+                var o = mini.decode(data.Data);
+                if (!o)
+                    o = {};
+                else {
+                    o.AuthorIDs = o.AuthorIDs.toString();
+                    o.PressIDs = o.PressIDs.toString();
+                }
+                o._state = row._state;
+                setFormData(o);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                editForm.unmask();
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function setFormData(o) {
+        editForm.setData(o);
+        $("#Picture").attr("src", "@(WebConfig.BookImageFileServer)" + (o.Picture ? o.Picture : "default.png"));
+        $("#Thumbnail").attr("src", "@(WebConfig.BookImageFileServer)" + (o.Thumbnail ? o.Thumbnail : "default.png"));
+        mini.get("authors").setText(o.AuthorNames.toString());
+        mini.get("presses").setText(o.PressNames.toString());
+        CKEDITOR.instances.Introduction.setData(o.Introduction);
+        CKEDITOR.instances.Catalog.setData(o.Catalog);
+        CKEDITOR.instances.Digest.setData(o.Digest);
+    }
+
+    function getFormData() {
+        var o = editForm.getData();
+        o.AuthorIDs = o.AuthorIDs.split(",");
+        o.PressIDs = o.PressIDs.split(",");
+        o.Introduction = CKEDITOR.instances.Introduction.getData();
+        o.Catalog = CKEDITOR.instances.Catalog.getData();
+        o.Digest = CKEDITOR.instances.Digest.getData();
+
+        return o;
+    }
+
+    function clearFormData() {
+        editForm.clear();
+        $("#Picture").attr("src", "@(WebConfig.BookImageFileServer)default.png");
+        $("#Thumbnail").attr("src", "@(WebConfig.BookImageFileServer)default.png");
+        CKEDITOR.instances.Introduction.setData('');
+        CKEDITOR.instances.Catalog.setData('');
+        CKEDITOR.instances.Digest.setData('');
+    }
+
+    function remove(e) {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定删除？", "确定删除该图书？", function (action) {
+                if (action == "ok") {
+                    var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+                    $.ajax({
+                        url: "/Admin/Book/Remove?id=" + row.ID,
+                        type: "post",
+                        success: function (result) {
+                            mini.hideMessageBox(messageid);
+                            if (result.Success) {
+                                showTip("数据保存成功！", "success");
+                                grid.reload();
+                            }
+                            else {
+                                mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage, "错误消息");
+                                grid.reload();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            mini.hideMessageBox(messageid);
+                            mini.alert("<b>出现错误！</b><br/>" +
+                                "错误信息：" + errorThrown, +
+                                "<br/>状态码：" + textStatus, "错误消息");
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    function refreshData() {
+        grid.reload();
+    }
+
+    function beforeNodeSelect(e) {
+        if (e.isLeaf == false) e.cancel = true;
+    }
+
+    function onFilterChanged(e, field) {
+        var key = e.getValue();
+
+        grid.load({ key: field + "-" + key });
+    }
+
+    function ok() {
+        editForm.validate();
+        if (!editForm.isValid())
+            return;
+        var o = getFormData();
+
+        grid.loading("保存中，请稍后...");
+        $.ajax({
+            url: "/Admin/Book/SaveBook",
+            data: JSON.stringify(o),
+            dataType: "json",
+            type: "post",
+            contentType: "application/json;charset=utf-8",
+            success: function (result) {
+                if (result.Success) {
+                    showTip("数据保存成功！", "success");
+                    grid.reload();
+                } else {
+                    e.cancel = true;
+                    mini.alert("<b>数据保存失败！</b><br>错误信息：" + result.ErrorMessage, "错误消息");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus, "错误消息");
+            }
+        });
+
+        editWindow.hide();
+    }
+
+    function cancel() {
+        grid.reload();
+        editWindow.hide();
+    }
+
+    function onShowRowDetail(e) {
+        var grid = e.sender;
+        var row = e.record;
+
+        var td = grid.getRowDetailCellEl(row);
+        td.innerHTML = "";
+        row.PublicationDate = mini.formatDate(row.PublicationDate, "yyyy年MM月dd日");
+        row.PrintingTime = mini.formatDate(row.PrintingTime, "yyyy年MM月dd日");
+        $("#formTemplate").tmpl(row).appendTo(td);
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+</script>

@@ -1,0 +1,43 @@
+﻿@{
+    Layout = "~/Views/Shared/Header.cshtml";
+}
+
+@using DomainModels = Justin.BookShop.Entities;
+@using ViewModels = Justin.BookShop.Controllers.Models;
+@using Justin.BookShop.Common.IoCManagement;
+@using Justin.BookShop.IService;
+
+@{
+    // Banner区书籍 最多取10条
+    IEnumerable<DomainModels.Book> bannerBooks = ContainerManager.Current.Resolve<IBookService>().GetBooksOnBanner().Take(10);
+
+    // 书籍分类
+    var bookCategoryList = ViewBag.BookCategoryList as ViewModels.BookCategoryList;
+    if (bookCategoryList == null || bookCategoryList.Children == null)
+    {
+        bookCategoryList = new ViewModels.BookCategoryList();
+        bookCategoryList.Children = ContainerManager.Current.Resolve<IBookCategoryService>().GetAll().Where(c => c.Parent == null).Select(c => c).ToList();
+    }
+}
+
+
+<div id="content">
+    <div class="wrapper">
+        <div class="aside">
+            @Html.Partial("BookCategoryList", bookCategoryList)
+        </div>
+
+        <div class="mainContent">
+            <h2>Welcome to our shop!</h2>
+            <div class="txt1">
+                一个人总要走陌生的路，看陌生的风景，听陌生的歌，<br />
+                然后在某个不经意的瞬间，你会发现，原本是费尽心机想要忘记的事情真的就那么忘记了。<br />
+            </div>
+            <div class="line-hor"></div>
+            <div class="wrapper">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
+

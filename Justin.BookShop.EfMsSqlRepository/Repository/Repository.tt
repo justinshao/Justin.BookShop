@@ -1,0 +1,29 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)libarary\Justin.BookShop.Entities.dll" #>
+<#@ assembly name="$(SolutionDir)libarary\Justin.BookShop.IRepository.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Justin.BookShop.Entities.Util" #>
+<#@ import namespace="Justin.BookShop.IRepository" #>
+<#@ output extension=".cs" #>
+using Justin.BookShop.Entities;
+using Justin.BookShop.IRepository;
+
+<#var modelTypes = EntityTypeUtil.FindEntityTypes();#>
+namespace Justin.BookShop.EfMsSqlRepository
+{
+<#
+foreach(Type t in modelTypes)
+{ 
+#>
+    public partial class <#=t.Name #>Repository : EfRepository<<#=t.Name #>>, I<#=t.Name #>Repository 
+    {
+        public <#=t.Name #>Repository(IDbContext context) : base(context) { } 
+    }
+
+<#
+}
+#>
+}

@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "SetTraceInfo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Justin.BookShop.Entities.TraceInfo
+<center>
+    <h2>订单到您这儿时要给用户什么信息？</h2>
+    <textarea id="traceInfo" class="mini-textarea" emptyText="请输入备注" width="100%"></textarea><br />
+    <a class="mini-button " iconCls="icon-add" onclick="onClick" tooltip="确定">确定</a>
+</center>
+
+<script type="text/javascript">
+    $(function () {
+        mini.parse();
+        mini.get("traceInfo").setValue("@(Model == null ? "" : Model.Info)");
+    });
+
+    function onClick() {
+        var info = mini.get("traceInfo").getValue();
+        if (!info)
+            return;
+
+        var messageid = mini.loading("正在处理操作，请稍后...", "处理中...");
+        $.ajax({
+            url: "/Admin/OrderManage/SetOrderTrace",
+            type: "post",
+            data: { traceInfo: info },
+            success: function (data) {
+                mini.hideMessageBox(messageid);
+                if (data.Success) {
+                    showTip("保存成功！", "success");
+                } else {
+                    mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + data.ErrorMessage);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                mini.hideMessageBox(messageid);
+                mini.alert("<b>出现错误！</b><br/>" +
+                    "错误信息：" + errorThrown, +
+                    "<br/>状态码：" + textStatus);
+            }
+        });
+    }
+
+    function showTip(content, state) {
+        mini.showTips({
+            content: content,
+            state: state,
+            x: "Center",
+            y: "Top",
+            timeout: 2000
+        });
+    }
+</script>
